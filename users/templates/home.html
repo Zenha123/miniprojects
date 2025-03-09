@@ -1,0 +1,236 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReparoHub</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="hero">
+        <nav  class="navbar">
+            <div class="logo">
+                <img src="{% static 'images/reparo.jpg'%}" alt="ReparoHub Logo">
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+            </ul>
+             <!-- <input type="text" class="search-bar" placeholder="Search...">-->
+            <div class="auth-buttons">
+                <div class="search-container">
+                    <input type="text" placeholder="Search..." class="search-box">
+                    <i class="fas fa-search search-icon"></i> <!-- FontAwesome Search Icon -->
+                </div>                
+                <button class="btn login">Login</button>
+                <button class="btn signup">Sign Up</button>
+            </div>
+        </nav>
+       
+            <div class="hero-content">
+                <div class="text-container">
+                <h1>The smart way to fix e-products.</h1>
+                <p><h3>Quality Repairs, Quick Service, Trusted Experts!</h3></p>
+            <button class="primary-btn">Discover More</button>
+            </div>
+            </div>
+        </header>
+       
+    
+        <section class="services">
+            
+            <div class="service-card">
+                <button class="service-btn"> 
+                <i class="fas fa-clipboard-list"></i> <!-- Icon for Registration -->
+                <h3>Product Registration</h3>
+                <p>Register your device for quick support.</p> 
+            </button>
+            </div>
+        
+            <div class="service-card"> 
+                <button class="service-btn">
+                <i class="fas fa-tools"></i> <!-- Icon for Repair -->
+                <h3>Submit Repair Request</h3>
+                <p>Request a repair service easily.</p> 
+            </button> 
+            </div>
+        
+            <div class="service-card"> 
+                <button class="service-btn">
+                <i class="fas fa-map-marker-alt"></i> <!-- Icon for Centers -->
+                <h3>Suggested Centers</h3> 
+                <p>Find the best service centers near you.</p> 
+            </button> 
+        </div>
+        
+            <div class="service-card"> 
+                <button class="service-btn">
+                <i class="fas fa-shipping-fast"></i> <!-- Icon for Tracking -->
+                <h3>Tracking</h3> 
+                <p>Track the progress of your repair request.</p> 
+            </button>
+            </div>
+        </section>
+        <section id="about">
+        <section class="about-reparohub">
+            <div class="about-content">
+                <h1>About Us</h1>
+                <p>ReparoHub is your go-to platform for seamless electronic repairs, product registrations, and service tracking. 
+                   We aim to simplify e-product maintenance with expert solutions and quick service.</p>
+                <p>With a network of trusted service centers, we ensure quality and reliability in every repair.</p>
+            
+            </div>
+            <div class="about-image">
+                <img src="{% static 'images/pic4.jpg'%}" alt="About ReparoHub">
+            </div>
+        </section></section>
+        <section class="stats-section">
+            <div class="stat">
+                <i class="fas fa-star"></i>
+                <h2>4.9/5</h2>
+                <p>Service Rating</p>
+            </div>
+            <div class="stat">
+                <i class="fas fa-headset"></i>
+                <h2>24/7</h2>
+                <p>Support Availability</p>
+            </div>
+            <div class="stat">
+                <i class="fas fa-smile"></i>
+                <h2>10,000+</h2>
+                <p>Satisfied Customers</p>
+            </div>
+            <div class="stat">
+                <i class="fas fa-users"></i>
+                <h2>50+</h2>
+                <p>Certified Technicians</p>
+            </div>
+        </section>
+        <section id="services">
+        <section class="repair-services">
+            <h6>WHAT WE OFFER</h6>
+            <h2>We fix electronic devices with expert repair and maintenance services. </h2>
+            <div class="service-wrapper">
+            <div class="service-container">
+                <div class="service-box">
+                    <img src="{% static 'images/fridge.png' %}" alt="Fridge">
+                    <h3>Fridge</h3>
+                    <p>Repair and maintenance for all types of refrigerators.</p>
+                </div>
+                <div class="service-box">
+                    <img src="{% static 'images/laptop.png'%}" alt="Laptops">
+                    <h3>Laptops</h3>
+                    <p>Comprehensive laptop repair and servicing solutions.</p>
+                </div>
+                <div class="service-box">
+                    <img src="{% static 'images/phone.png'%}" alt="Mobile Phones">
+                    <h3>Mobile Phones</h3>
+                    <p>Fixing software and hardware issues for smartphones.</p>
+                </div>
+                <div class="service-box">
+                    <img src="{% static 'images/tv,1.png'%}" alt="TV">
+                    <h3>TV</h3>
+                    <p>Smart TV and LED/LCD repair services at your convenience.</p>
+                </div>
+                <div class="service-box">
+                    <img src="{% static 'images/washing.png'%}" alt="Washing Machine">
+                    <h3>Washing Machine</h3>
+                    <p>Expert washing machine servicing and repairs.</p>
+                </div>
+                <div class="service-box">
+                    <img src="{% static 'images/gadget.png'%}" alt="Gadgets">
+                    <h3>Gadgets</h3>
+                    <p>Repairs for small electronic gadgets and accessories.</p>
+                </div>
+            </div></div>
+        </section></section>
+        <!-- testimonial -->
+         <section id="testimonials">
+        <section class="testimonials">
+            <h2 class="testimonial-title">What They Say</h2>
+            <div class="testimonial-container">
+                <div class="testimonial-box">
+                    <p class="testimonial-text">
+                        "Excellent service! They fixed my device quickly and efficiently. Highly recommend."
+                    </p>
+                    <div class="testimonial-author">
+                        <img src="{% static 'images/menuser.png'%}" alt="User 1">
+                        <div class="author-info">
+                            <h4>John Doe</h4>
+                            <p>Customer</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="testimonial-box">
+                    <p class="testimonial-text">
+                        "Professional and reliable service. My gadget is working like new again!"
+                    </p>
+                    <div class="testimonial-author">
+                        <img src="{% static 'images/femaleuser.png'%}" alt="User 2">
+                        <div class="author-info">
+                            <h4>Jane Smith</h4>
+                            <p>Customer</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="testimonial-box">
+                    <p class="testimonial-text">
+                        "ReparoHub has boosted our customer reach and simplified the repair process, making service management seamless."
+                    </p>
+                    <div class="testimonial-author">
+                        <img src="{% static 'images/menuser.png'%}" alt="User 3">
+                        <div class="author-info">
+                            <h4>Mark Wilson</h4>
+                            <p>Service Provider</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section></section>
+        <!-- contact -->
+        <section id="contact">
+        <section class="contact">
+            <h2 class="section-title">Get in Touch</h2>
+            <div class="contact-container">
+                <!-- Chatbox -->
+                <div class="contact-box">
+                    <i class="fas fa-comments contact-icon"></i>
+                    <h3>Chatbox</h3>
+                    <p>Instantly connect with our support team for quick assistance.</p>
+                    <button class="contact-btn">Start Chat</button>
+                </div>
+        
+                <!-- Call Support -->
+                <div class="contact-box">
+                    <i class="fas fa-phone-alt contact-icon"></i>
+                    <h3>Call Support</h3>
+                    <p>Need immediate help? Call our support team for quick solutions.</p>
+                    <button class="contact-btn">Call Now</button>
+                </div>
+            </div>
+        </section></section>
+        <!-- Social Media Section -->
+<section id="social-media">
+    <h2>Follow Us</h2>
+    <div class="social-icons">
+        <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook"></i></a>
+        <a href="https://www.twitter.com/" target="_blank"><i class="fab fa-twitter"></i></a>
+        <a href="https://www.instagram.com/" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.linkedin.com/" target="_blank"><i class="fab fa-linkedin"></i></a>
+    </div>
+</section>
+
+    <footer>
+        <p>&copy; 2025 ReparoHub. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
