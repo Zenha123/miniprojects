@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+</head>
+<body>
+    <header>
+        <h1 class="heading">SIGNUP</h1>
+    </header>
+
+
+
+    {% if error %}
+                <div class="error-message">
+                    {{ error|safe }}  <!-- Use |safe to render HTML links -->
+                </div>
+            {% endif %}
+    <!-- Container for the form -->
+    <div class="container">
+        <!-- Slider and buttons for Customer/Service Center -->
+        <div class="slider"></div>
+        <div class="btn">
+            <button type="button" class="login">Customer</button>
+            <button type="button" class="signup">Fix Center</button>
+        </div>
+
+        <!-- Form section -->
+        <div class="form-section">
+            <!-- Display error message if it exists -->
+            
+
+            <!-- Customer Form -->
+            <div class="login-box">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="email" name="email" class="email ele" placeholder="youremail@email.com" required>
+                    <input type="password" name="password1" class="password ele" placeholder="password" required>
+                    <input type="password" name="password2" class="password ele added" placeholder="confirm password" required>
+                    <input type="text" name="name" class="name ele" placeholder="Your Name" required>
+                    <input type="hidden" name="user_type" value="Customer">
+                    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+                    <button type="submit" class="clkbtn">Get OTP</button>
+                </form>
+            </div>
+
+            <!-- Service Center Form -->
+            <div class="signup-box">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="email" name="email" class="email ele" placeholder="youremail@email.com" required>
+                    <input type="password" name="password1" class="password ele" placeholder="password" required>
+                    <input type="password" name="password2" class="password ele" placeholder="Confirm password" required>
+                    <input type="text" name="name" class="name ele" placeholder="Company Name" required>
+                    <input type="text" name="location" class="password ele" placeholder="Location" required>
+                    <input type="hidden" name="user_type" value="Service Center">
+                    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+                    <button type="submit" class="clkbtn">Get OTP</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/signup.js' %}"></script>
+</body>
+</html>
