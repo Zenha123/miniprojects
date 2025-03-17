@@ -1,5 +1,6 @@
 # Virtual environment
 env1/
+reparoenv/
 
 # Byte-compiled / binary files
 *.pyc
