@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Repair Request Form</title>
+  <link rel="stylesheet" href="{% static 'css/repair.css' %}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for AJAX -->
+</head>
+<body>
+
+
+
+
+
+  <!--<nav class="navbar">
+    <div class="nav-logo">
+      <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/>
+       
+    </div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="repair-status.html">Repair Status</a></li>
+        <li><a href="service-centers.html">Service Centers</a></li>
+        <li><a href="customer-support.html">Customer Support</a></li>
+        <li><a href="settings.html">Settings</a></li>
+        <li><a href="#" id="logout-btn">Logout</a></li>
+    </ul>
+    <div class="nav-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+</nav>-->
+
+
+  <div class="container">
+  
+    <div class="left-panel">
+      <div class="logo-shape">
+        <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/>
+      </div>
+      <h2>Request a Repair</h2>
+      <p>Submit your repair request easily and get prompt service.</p>
+      <button>Contact Support</button>
+    </div>
+
+    <!-- Right Panel: Form -->
+    <div class="right-panel">
+      <div class="form-container">
+        <h2>Repair Request Form</h2>
+        <form method="post">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label for="product_name">Product Name</label>
+            <input type="text" id="product_name" name="product_name" placeholder="Enter product name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="issue_description">Issue Description</label>
+            <textarea id="issue_description" name="issue_description" placeholder="Describe the issue" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="image">Upload Image</label>
+            <input type="file" id="image" name="image" accept="image/*">
+        </div>
+
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address" placeholder="Enter your address" required>
+          </div>
+
+          
+          <div class="form-group">
+            <label for="preferred_location">Preferred Location</label>
+            <input type="text" id="preferred_location" name="preferred_location" placeholder="Enter your location">
+            <button type="button" onclick="fetchServiceCenters()">Find Service Centers</button>
+          </div>
+
+          <div class="form-group">
+            <label for="service_center">Selected Service Center</label>
+            <input type="text" id="service_center" name="service_center" placeholder="Select a service center" readonly>
+          </div>
+
+          <button type="submit">Submit Request</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup Modal for Service Centers -->
+  <div id="popup" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closePopup()">&times;</span>
+      <h3>Available Service Centers</h3>
+      <ul id="service-center-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    function fetchServiceCenters() {
+      let location = document.getElementById('preferred_location').value;
+      if (!location) {
+        alert("Please enter a location first.");
+        return;
+      }
+
+      console.log("📤 Sending request for location:", location);
+
+      $.ajax({
+        url: "{% url 'fetch_service_centers' %}",
+        type: "GET",
+        data: { location: location },
+        success: function(data) {
+          console.log("📥 Response received:", data);
+          let list = document.getElementById('service-center-list');
+          list.innerHTML = "";
+
+          if (data.centers.length === 0) {
+            list.innerHTML = "<p>No service centers found.</p>";
+          } else {
+            data.centers.forEach(center => {
+              let listItem = document.createElement('li');
+              listItem.innerHTML = `${center.name} - ${center.address} <button onclick="selectServiceCenter('${center.name}')">Select</button>`;
+              
+              list.appendChild(listItem);
+            });
+          }
+
+          document.getElementById('popup').style.display = 'block';
+        },
+        error: function(xhr, status, error) {
+          console.log("❌ AJAX Error:", status, error);
+        }
+      });
+    }
+
+    function selectServiceCenter(centerName) {
+      document.getElementById('service_center').value = centerName;
+      closePopup();
+    }
+
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>

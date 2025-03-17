@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Service Center Registration</title>
+  <link rel="stylesheet" href="{% static 'css/service.css' %}" />
+  <style>
+  </style>
+</head>
+<body>
+
+
+
+
+
+  <nav class="navbar">
+    <div class="nav-logo">
+      <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/>
+       
+    </div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="repair-status.html">Repair Status</a></li>
+        <li><a href="service-centers.html">Service Centers</a></li>
+        <li><a href="customer-support.html">Customer Support</a></li>
+        <li><a href="settings.html">Settings</a></li>
+        <li><a href="#" id="logout-btn">Logout</a></li>
+    </ul>
+    <div class="nav-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+</nav>
+
+  <div class="container">
+    <!-- Left Panel -->
+    <div class="left-panel">
+      <div class="logo-shape">
+        <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/>
+      </div>
+      <h2>Welcome to Our Service Center</h2>
+      <p>Register your service center and join our growing network.</p>
+      <button>About Us</button>
+    </div>
+
+    <!-- Right Panel: Registration Form -->
+    <div class="right-panel">
+      <div class="form-container">
+        <h2>Register Here</h2>
+        <form method="post">
+        
+          <div class="form-group">
+            <label for="center_name">Service Center Name</label>
+            <input
+              type="text"
+              id="center_name"
+              name="center_name"
+              placeholder="Enter Service Center Name"
+              required
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="owner_name">service catalog</label>
+            <input
+              type="text"
+              id="service catalog"
+              name="service catalog"
+              placeholder="Enter service catalog"
+              required
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="contact">Contact Number</label>
+            <input
+              type="tel"
+              id="contact"
+              name="contact"
+              placeholder="Enter Contact Number"
+              required
+            />
+          </div>
+          <button type="submit">Register</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
