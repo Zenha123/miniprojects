@@ -1,0 +1,91 @@
+/* General Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f4f4; /* Light gray background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* OTP Container */
+.otp-container {
+    background-color: #ffffff; /* White background */
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.otp-container h2 {
+    color: #002244; /* Navy blue for heading */
+    margin-bottom: 10px;
+}
+
+.otp-container .subtitle {
+    color: #555; /* Dark gray for subtitle */
+    margin-bottom: 20px;
+}
+
+/* OTP Input Fields */
+.otp-inputs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.otp-box {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 18px;
+    border: 1px solid #ddd; /* Light gray border */
+    border-radius: 5px;
+    outline: none;
+    color: #002244; /* Navy blue text */
+    background-color: #f0f0f0; /* Light gray background */
+}
+
+.otp-box:focus {
+    border-color: #002244; /* Navy blue border on focus */
+    box-shadow: 0 0 5px rgba(0, 34, 68, 0.5); /* Navy blue shadow */
+}
+
+/* Resend OTP Link */
+.resend-otp {
+    color: #555; /* Dark gray for text */
+    margin-bottom: 20px;
+}
+
+.resend-otp a {
+    color: #002244; /* Navy blue for link */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.resend-otp a:hover {
+    text-decoration: underline;
+}
+
+/* Verify Button */
+.verify-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    background-image: linear-gradient(to right, #002244, #1E90FF); /* Navy blue to light blue gradient */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.verify-btn:hover {
+    background-image: linear-gradient(to right, #001933, #0077cc); /* Darker gradient on hover */
+}
