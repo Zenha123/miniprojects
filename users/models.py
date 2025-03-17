@@ -44,13 +44,13 @@ class Customer(models.Model):
     name = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.name
+        return self.name + str(self.id)
     
 class ServiceCenter(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE,primary_key=True)
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=200)
-
+    
     def __str__(self):
         return self.name
 
