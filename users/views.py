@@ -135,3 +135,11 @@ def send_otp_email(email, otp, username):
 
 def home(request):
     return render(request, 'users/home.html')
+
+
+def cust_dash(request):
+    return render(request, 'users/cust_dash.html')
+
+
+def repair_status(request):
+    return render(request, 'users/repairstatus.html')
