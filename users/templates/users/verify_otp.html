@@ -15,7 +15,14 @@
         <!-- OTP Verification Form -->
         <form method="post">
             {% csrf_token %}
-            <input type="text" name="otp" placeholder="Enter OTP" required>
+            <div class="otp-inputs">
+                <input type="text" maxlength="1" class="otp-box" name="otp_1" required>
+                <input type="text" maxlength="1" class="otp-box" name="otp_2" required>
+                <input type="text" maxlength="1" class="otp-box" name="otp_3" required>
+                <input type="text" maxlength="1" class="otp-box" name="otp_4" required>
+                <input type="text" maxlength="1" class="otp-box" name="otp_5" required>
+                <input type="text" maxlength="1" class="otp-box" name="otp_6" required>
+            </div>
             <button type="submit" class="verify-btn">Verify OTP</button>
         </form>
 
@@ -24,8 +31,14 @@
                 <p class="error">{{ error }}</p>
             {% endif %}
 
+            {% if message %}
+            <div class="success-message">
+                {{ message }}
+            </div>
+            {% endif %}
+
             <!-- Resend OTP Link -->
-            <p class="resend-otp">Didn't receive the OTP? <a href="#">Resend OTP</a></p>
+            <p class="resend-otp">Didn't receive the OTP? <a href="{% url 'resend_otp' %}">Resend OTP</a></p>
     </div>
 
     <script src="{% static 'js/otp.js' %}"></script>
