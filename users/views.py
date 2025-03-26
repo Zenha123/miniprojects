@@ -1,6 +1,11 @@
 
 from django.http import HttpResponse
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.hashers import make_password
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from .models import CustomUser, Customer, ServiceCenter, OTP
@@ -27,6 +32,66 @@ def user_login(request):
         else:
             return render(request, 'users/login.html', {'error': 'Invalid credentials'})
     return render(request, 'users/login.html')
+
+def forgot_password(request):
+    if request.method == 'POST':
+        email=request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return render(request, 'forgot_password.html', {'error': 'No user found with this email.'})
+        
+        # Generate a password reset token
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        reset_link = f"{settings.BASE_URL}/reset-password/{uid}/{token}/"
+
+        subject = 'Password Reset Request'
+        message = f'''
+        Hello{user.email},
+
+        you requested a password reset.please click on the link below to reset your password:
+        {reset_link}
+
+        If you did not request this,please ignore this mail.
+
+        Thank You,
+        ReparoHub
+        '''
+
+        send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email])
+
+        return render(request, 'users/forgot_password.html', {'message': 'A password reset link has been sent to your email.'})
+    
+    return render(request, 'users/forgot_password.html')
+
+def reset_password(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverFlowError, User.DoesNotExist):
+        user=None
+
+    if user and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            password = request.POST.get('password')
+            confirm_password = request.POST.get('confirm_password')
+
+            if password != confirm_password:
+                return render(request, 'users/reset_password.html', {'error': 'Passwords do not match.'})
+
+            # Update the user's password
+            user.password = make_password(password)
+            user.save()
+
+            return render(request, 'users/login.html', {'message': 'Your password has been reset successfully.'})
+
+        return render(request, 'users/reset_password.html')
+    else:
+        return render(request, 'users/reset_password.html', {'error': 'Invalid or expired reset link.'})
+
+
 
 def signup(request):
     if request.method == 'POST':
@@ -59,6 +124,7 @@ def signup(request):
         request.session['otp'] = otp
         request.session['otp_expires_at'] = expires_at.isoformat()
 
+
         # Send OTP via email
         send_otp_email(email, otp, name)
 
@@ -68,13 +134,16 @@ def signup(request):
     return render(request, 'users/signup.html')
 
 def verify_otp(request):
+    message = request.session.pop('message',None)
+
     if request.method == 'POST':
-        otp_entered = request.POST.get('otp')
+        otp_entered = ''.join([request.POST.get(f'otp_{i}', '') for i in range(1,7)])
         otp = request.session.get('otp')
         expires_at = request.session.get('otp_expires_at')
 
+
         if not otp or not expires_at:
-            return render(request, 'users/verify_otp.html', {'error': 'OTP expired or invalid'})
+            return render(request, 'users/verify_otp.html', {'error': 'OTP expired or invalid', 'message':message})
 
         if timezone.now() > timezone.datetime.fromisoformat(expires_at):
             return render(request, 'verify_otp.html', {'error': 'OTP expired'})
@@ -83,7 +152,7 @@ def verify_otp(request):
             # Create user
             signup_data = request.session.get('signup_data')
             if not signup_data:
-                return render(request, 'users/verify_otp.html', {'error': 'Invalid session data'})
+                return render(request, 'users/verify_otp.html', {'error': 'Invalid session data','message':message})
 
             user = User.objects.create_user(
                 email=signup_data['email'],
@@ -109,9 +178,9 @@ def verify_otp(request):
             return redirect('home')
 
         else:
-            return render(request, 'users/verify_otp.html', {'error': 'Invalid OTP'})
+            return render(request, 'users/verify_otp.html', {'error': 'Invalid OTP', 'message':message})
 
-    return render(request, 'users/verify_otp.html')
+    return render(request, 'users/verify_otp.html',{'message': message})
 
 def send_otp_email(email, otp, username):
     print(f"Sending OTP {otp} to {email}")  # Debugging
@@ -136,6 +205,24 @@ def send_otp_email(email, otp, username):
 def home(request):
     return render(request, 'users/home.html')
 
+
+def resend_otp(request):
+    if 'signup_data' in request.session:
+        #generating new otp
+        totp = pyotp.TOTP(pyotp.random_base32())
+        otp=totp.now()
+        expires_at = timezone.now()+ timedelta(minutes=5)
+
+        request.session['otp'] = otp
+        request.session['otp_expires_at'] = expires_at.isoformat()
+
+        email = request.session['signup_data']['email']
+        name = request.session['signup_data']['name']
+        send_otp_email(email, otp, name)
+
+        request.session['message'] = 'A new OTP has been sent to your email.'
+
+    return redirect('verify_otp')
 
 def cust_dash(request):
     return render(request, 'users/cust_dash.html')
