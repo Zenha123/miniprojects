@@ -5,6 +5,12 @@ from pathlib import Path
 
 import os
 from pathlib import Path
+from cryptography.fernet import Fernet
+
+ENCRYPTION_KEY = os.environ.get("CHAT_ENCRYPTION_KEY", Fernet.generate_key().decode())
+cipher = Fernet(ENCRYPTION_KEY.encode())
+
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -50,9 +56,11 @@ INSTALLED_APPS = [
     
     'users',
     'reg',
+    'chat',
 
     
 ]
+AUTH_USER_MODEL = 'chat.CustomUser'
 
 AUTH_USER_MODEL='users.customUser'
 DEFAULT_AUTO_FIELD= 'django.db.models.BigAutoFeild'

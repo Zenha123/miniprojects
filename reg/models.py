@@ -4,7 +4,7 @@ from users.models import *
 
 
 class Product(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, to_field='user')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     product_name = models.CharField(max_length=255)
     model_number = models.CharField(max_length=100)
     purchase_date = models.DateField()
@@ -28,16 +28,14 @@ class RepairRequest(models.Model):
     issue_description = models.TextField()
     address = models.CharField(max_length=255)
     preferred_location = models.CharField(max_length=255, blank=True, null=True)
-    service_center = models.CharField(max_length=255, blank=True, null=True)
+    #service_center = models.CharField(max_length=255, blank=True, null=True)
+    service_center = models.ForeignKey(ServiceCenter, on_delete=models.CASCADE) 
     request_date = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to="repair_images/", blank=True, null=True)
-
-    def __str__(self):
-        return f"Repair Request for {self.product_name} by {self.customer.email}"
-
-    service = models.ForeignKey(ServiceCenter, on_delete=models.CASCADE)
+    #service = models.ForeignKey(ServiceCenter, on_delete=models.CASCADE)
     service_catalog = models.CharField(max_length=1000,blank=True)
     contact_no = models.CharField(max_length=10,blank=True,null=True)
     def __str__(self):
-        return self.service
+         return f"Repair Request for {self.product_name} at {self.service_center.name}"
+
 
