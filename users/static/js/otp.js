@@ -16,3 +16,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+setTimeout(function() {
+    var successMessage = document.querySelector('.success-message');
+    if (successMessage) {
+        successMessage.style.display = 'none';
+    }
+}, 10000);  // 10 seconds
