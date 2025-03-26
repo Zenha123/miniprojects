@@ -23,7 +23,7 @@ def user_login(request):
         user = authenticate(request, email=email, password=password)
         if user:
             login(request, user)
-            return redirect('home')
+            return redirect('repairreq')
         else:
             return render(request, 'users/login.html', {'error': 'Invalid credentials'})
     return render(request, 'users/login.html')
@@ -106,7 +106,7 @@ def verify_otp(request):
 
             # Log the user in
             login(request, user)
-            return redirect('home')
+            return redirect('product_reg')
 
         else:
             return render(request, 'users/verify_otp.html', {'error': 'Invalid OTP'})
@@ -135,3 +135,9 @@ def send_otp_email(email, otp, username):
 
 def home(request):
     return render(request, 'users/home.html')
+
+def servicedash(request):
+    return render(request, 'users/service-dash.html')
+
+def completed(request):
+    return render(request, 'users/complete.html')

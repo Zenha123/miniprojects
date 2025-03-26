@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Center Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/service-dash.css' %}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">  <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/></div>
+        <ul class="nav-links">
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#" onclick="openModal()">Pending Works</a></li>
+            <li><a href="completed_requests.html">Completed Works</a></li>
+            <li><a href="#">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Welcome, Service Center</h1>
+
+        <!-- Repair Requests Table -->
+        <h2>Repair Requests</h2>
+        <table>
+            <tr>
+                <th>Product Name</th>
+                <th>Customer</th>
+                <th>Issue</th>
+                <th>Actions</th>
+            </tr>
+            <tr>
+                <td>Washing Machine</td>
+                <td>customer@example.com</td>
+                <td>Not spinning</td>
+                <td>
+                    <button class="accept-btn" onclick="redirectToDetail()">Accept</button>
+                    <button class="reject-btn">Reject</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Refrigerator</td>
+                <td>user@example.com</td>
+                <td>Not cooling</td>
+                <td>
+                    <button class="accept-btn" onclick="redirectToDetail()">Accept</button>
+                    <button class="reject-btn">Reject</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Pending Works Popup -->
+    <!-- Button to Open Modal -->
+
+
+<!-- Pending Works Modal -->
+<div id="pendingModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Pending Works</h2>
+            <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <ul>
+                <li>Washing Machine - In Progress <button class="view-btn" onclick="redirectToDetail()">View</button></li>
+                <li>Refrigerator - In Progress <button class="view-btn" onclick="redirectToDetail()">View</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById("pendingModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("pendingModal").style.display = "none";
+    }
+
+    function redirectToDetail() {
+        window.location.href = "request_detail.html"; // Redirect to the request detail page
+    }
+</script>
+
+
+    
+
+</body>
+</html>
