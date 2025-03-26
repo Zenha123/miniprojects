@@ -1,0 +1,573 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #F4F6F9;
+    color: #1C2A38;
+}
+
+/* Sidebar */
+
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #0C2D57;
+    color: white;
+    padding: 15px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Logo */
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-logo img {
+    height: 40px;
+}
+
+.nav-logo span {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Navbar Links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links li {
+    display: inline-block;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-links a:hover, 
+.nav-links .active {
+    background: #2A3D52;
+}
+
+/* Dropdown Menu */
+.settings-dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 40px;
+    left: 0;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    padding: 10px 0;
+    min-width: 180px;
+    z-index: 1000;
+}
+
+.dropdown-menu li {
+    padding: 10px 20px;
+}
+
+.dropdown-menu li a {
+    color: #1C2A38;
+    text-decoration: none;
+    display: block;
+    transition: 0.3s;
+}
+
+.dropdown-menu li a:hover {
+    background: #E0E4E8;
+}
+
+/* Show dropdown when active */
+.settings-dropdown.active .dropdown-menu {
+    display: block;
+}
+
+/* Logout Button */
+#logout-btn {
+    background: #40556B;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+#logout-btn:hover {
+    background: #40556B;
+}
+
+/* Mobile Menu */
+.nav-toggle {
+    display: none;
+    cursor: pointer;
+    font-size: 22px;
+}
+
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        background: #1C2A38;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        padding: 15px 0;
+        text-align: center;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+}
+
+/* Logout Popup Overlay */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Logout Popup Box */
+.popup-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.popup-box h3 {
+    margin-bottom: 10px;
+}
+
+.popup-buttons button {
+    background: #40556B;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.popup-buttons button:hover {
+    background: #2A3D52;
+}
+
+/* Goodbye Message Overlay */
+.goodbye-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:#0C2D57;
+    justify-content: center;
+    align-items: center;
+}
+
+.goodbye-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #40556B;
+    animation: fadeOut 1.5s ease-in-out forwards;
+}
+
+/* Fade Out Animation */
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+
+/* Main Content */
+.main-content {
+    margin-left: 0; /* Remove sidebar space */
+    padding-top: 100px; /* Adjust for navbar height */
+    width: 100%;
+    text-align: center;
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: justify;
+    justify-content: center;
+}
+
+/* Header */
+
+.welcome-text {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    color: #1C2A38; /* Adjust if needed */
+    margin-top: 20px;
+}
+
+
+/* Quick Stats */
+.quick-stats {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0;
+    gap: 15px;
+    width: 50%;
+    align-content: center;
+    margin-left: 25%;
+    margin-right: 25%;
+
+}
+
+.stat {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    flex: 1;
+}
+
+.stat h3 {
+    font-size: 18px;
+    color: #1C2A38;
+    font-weight: 500;
+}
+
+.stat p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #506680;
+}
+
+/* My Products */
+.my-products {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: #0C2D57;
+    width: 100%;
+}
+
+.products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.add-product-btn {
+    background-color: #506680;
+    color: white;
+    font-size: 20px;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.add-product-btn:hover {
+    background-color: #081625;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 14px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #0C2D57;
+    color: white;
+    font-weight: 600;
+}
+
+tr:hover {
+    background: #F1F3F6;
+}
+
+/* Buttons */
+.repair-btn {
+    background: #506680;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.repair-btn:hover {
+    background: #40556B;
+}
+
+/* Status Colors 
+.status {
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.status.in-progress {
+    background-color: #506680;
+    color: white;
+}
+
+.status.pending {
+    background-color: #8A9DAE;
+    color: white;
+}*/
+
+/* General Table Styling */
+.my-repair-requests-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    
+}
+
+/* Table Header */
+.my-repair-requests-table thead {
+    background-color: #0C2D57;
+    color: #ffffff;
+    text-align: left;
+    font-weight: bold;
+}
+
+/* Table Header Cells */
+.my-repair-requests-table thead th {
+    padding: 12px 16px;
+}
+
+/* Table Body */
+.my-repair-requests-table tbody tr {
+    border-bottom: 1px solid #ddd;
+}
+
+/* Alternate Row Color */
+.my-repair-requests-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+/* Table Cells */
+.my-repair-requests-table td {
+    padding: 12px 16px;
+    color: #333;
+}
+
+/* Hover Effect on Rows */
+.my-repair-requests-table tbody tr:hover {
+    background: #e9f0ff;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 6px;
+    color: white;
+    text-align: center;
+    min-width: 100px;
+}
+
+/* Status Colors */
+.status-in-progress {
+    background: #0a2a5e; /* Dark Blue */
+}
+
+.status-pending {
+    background: #6c7a89; /* Muted Grey */
+}
+
+/* Completed Repairs Dropdown */
+.completed-repairs {
+    margin-top: 30px;
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(28, 4, 48, 0.1);
+}
+
+.dropdown-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #0C2D57;
+    color: white;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    transition: 0.3s ease-in-out;
+}
+
+.dropdown-btn i {
+    transition: transform 0.3s ease;
+}
+
+.dropdown-btn:hover {
+    background: #2A3D52;
+}
+
+/* Dropdown Content */
+.dropdown-content {
+    display: none;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-top: 10px;
+}
+
+/* Table Styling */
+.dropdown-content table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.dropdown-content th, .dropdown-content td {
+    padding: 14px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.dropdown-content th {
+    background: #6c7a89;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.dropdown-content tr:hover {
+    background: #F1F3F6;
+}
+.review-btn {
+    background: #0C2D57;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.review-btn:hover {
+    background: #2A3D52;
+}
+
+/* Show dropdown when active */
+.show {
+    display: block;
+}
+
+/* Rotate arrow when expanded */
+.show + .dropdown-btn i {
+    transform: rotate(180deg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 0;
+        overflow: hidden;
+    }
+
+    .sidebar.active {
+        width: 250px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .quick-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .stat {
+        width: 100%;
+    }
+}
+
+/* Quick Stats as Clickable Buttons */
+.stat {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    cursor: pointer;
+    transition: 0.3s ease;
+    border: none;
+}
+
+.stat:hover {
+    background: #E0E4E8;
+}
+
+/* Highlight Active & Completed Repairs */
+.highlight-row {
+    background-color: #A9A9A9 !important;
+    color: white !important;
+    font-weight: bold;
+} 

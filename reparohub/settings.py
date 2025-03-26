@@ -1,7 +1,7 @@
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 
 import os
 from pathlib import Path
@@ -155,8 +155,13 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'shadishirin5678@gmail.com'
-EMAIL_HOST_PASSWORD = 'uxwe vqvv ewds hrbp'
+EMAIL_HOST_USER = 'reparohub2025@gmail.com'
+EMAIL_HOST_PASSWORD = 'jlcj ymmk srie kpxt'
 
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Or 'django.contrib.sessions.backends.cache'
+SESSION_COOKIE_SECURE = False  # Set to True in production (HTTPS only)
+
+BASE_URL = 'http://127.0.0.1:8000'
