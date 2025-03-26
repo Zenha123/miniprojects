@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <title>Secure Chatbox</title>
+    <link rel="stylesheet" href="{% static 'css/chat.css' %}" />
+    <script>
+        const receiverId = "{{ service_center.id }}";  
+        const csrfToken = "{{ csrf_token }}";
+
+        if (!receiverId) {
+            console.error("Receiver ID is missing. Please check the data.");
+            alert("Error: No valid service center found.");
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById("message-input");
+            const message = messageInput.value.trim();
+
+            if (!message) return;
+
+            fetch("/chat/send_message/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": csrfToken
+                },
+                body: `receiver_id=${receiverId}&message=${encodeURIComponent(message)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    messageInput.value = ""; 
+                    loadMessages();
+                } else {
+                    console.error("Error:", data.message);
+                    alert("Error sending message: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+            });
+        }
+
+        function loadMessages() {
+            fetch(`/chat/get_messages/${receiverId}/`)
+            .then(response => {
+                if (!response.ok) throw new Error("Network error");
+                return response.json();
+            })
+            .then(data => {
+                const chatBox = document.getElementById("chat-messages");
+                chatBox.innerHTML = "";
+
+                if (data.messages.length === 0) {
+                    chatBox.innerHTML = "<p>No messages yet.</p>";
+                } else {
+                    data.messages.forEach(msg => {
+                        const messageClass = msg.sender === "{{ request.user.username }}" ? "sent" : "received";
+                        const messageDiv = document.createElement('div');
+                        messageDiv.classList.add('message', messageClass);
+                        messageDiv.innerHTML = `
+                            <strong>${msg.sender}:</strong> ${msg.message}
+                            <small>${msg.timestamp}</small>
+                        `;
+                        chatBox.appendChild(messageDiv);
+                    });
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+            });
+        }
+
+        setInterval(loadMessages, 3000); 
+    </script>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-header">
+            <h3>Chat with {{ service_center.username }}</h3>
+        </div>
+        <div id="chat-messages"></div>
+        <div id="chat-input">
+            <input 
+                type="text"
+                id="message-input"
+                placeholder="Type a message..." 
+                onkeypress="if(event.keyCode==13) sendMessage();" 
+            />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</body>
+</html>

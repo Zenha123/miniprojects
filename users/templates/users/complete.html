@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completed Repair Works</title>
+    <link rel="stylesheet" href="{% static 'css/service-dash.css' %}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">  <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/></div>
+        <ul class="nav-links">
+            <li><a href="service_dashboard.html">Dashboard</a></li>
+            <li><a href="pending_requests.html">Pending Works</a></li>
+            <li><a href="#">Completed Works</a></li>
+            <li><a href="#">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Completed Repair Works</h1>
+        <table>
+            <tr>
+                <th>Product Name</th>
+                <th>Customer</th>
+                <th>Completion Date</th>
+            </tr>
+            <tr>
+                <td>Washing Machine</td>
+                <td>customer@example.com</td>
+                <td>2024-03-15</td>
+            </tr>
+            <tr>
+                <td>Refrigerator</td>
+                <td>user@example.com</td>
+                <td>2024-03-10</td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+</html>
