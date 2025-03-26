@@ -206,7 +206,6 @@ def home(request):
     return render(request, 'users/home.html')
 
 
-
 def resend_otp(request):
     if 'signup_data' in request.session:
         #generating new otp
@@ -224,3 +223,10 @@ def resend_otp(request):
         request.session['message'] = 'A new OTP has been sent to your email.'
 
     return redirect('verify_otp')
+
+def cust_dash(request):
+    return render(request, 'users/cust_dash.html')
+
+
+def repair_status(request):
+    return render(request, 'users/repairstatus.html')

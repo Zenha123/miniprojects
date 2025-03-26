@@ -9,4 +9,6 @@ urlpatterns = [
     path('signup/',views.signup,name='signup'),
     path('verify-otp/', views.verify_otp, name='verify_otp'),
     path('resend_otp/',views.resend_otp, name='resend_otp')
+    path('cust-dash/', views.cust_dash, name='custdash'),
+    path('crepair-status/', views.repair_status, name='custdash'),
 ]

@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - ReparoHub</title>
+    <link rel="stylesheet" href="{% static 'css/cust_dash.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Mobile Menu Button -->
+    <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="navbar">
+            <div class="nav-logo">
+                <img src="{% static 'images/reparo.jpg'%}" alt="ReparoHub Logo">
+                
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="repair-status.html">Repair Status</a></li>
+                <li><a href="service-centers.html">Service Centers</a></li>
+                <li><a href="customer-support.html">Customer Support</a></li>
+                <li class="settings-dropdown">
+                    <a href="#" id="settings-btn">Settings ▼</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Profile</a></li>
+                        <li><a href="#">Change Password</a></li>
+                        <li><a href="#" id="dark-mode-toggle">Dark Mode</a></li>
+                        <li><a href="#" id="logout-option">Logout</a></li>
+                    </ul>
+                </li>
+                <li><a href="#" id="logout-btn">Logout</a></li>
+            </ul>
+            <div class="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    
+
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="welcome-container">
+                               <h1 class="welcome-text">Welcome, [Customer Name]</h1>
+            </div>
+            
+
+ <!-- Quick Stats -->
+<div class="quick-stats">
+    <button class="stat" onclick="redirectToRepairs('active')">
+        <h3>Active Repairs</h3>
+        <p>2</p>
+    </button>
+    <button class="stat" onclick="redirectToRepairs('completed')">
+        <h3>Completed Repairs</h3>
+        <p>5</p>
+    </button>
+    
+</div>
+
+            <!-- My Products Section -->
+            <div class="my-products">
+                <div class="products-header">
+                    <h2>My Products</h2>
+                    <button class="add-product-btn" onclick="redirectToProductRegistration()">+</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Model</th>
+                            <th>Warranty Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>iPhone 12</td>
+                            <td>A2172</td>
+                            <td>Under Warranty</td>
+                            <td><button class="repair-btn">Request Repair</button></td>
+                        </tr>
+                        <tr>
+                            <td>Samsung Galaxy S21</td>
+                            <td>SM-G991B</td>
+                            <td>Out of Warranty</td>
+                            <td><button class="repair-btn">Request Repair</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function redirectToProductRegistration() {
+            window.location.href = "product-registration.html";
+        }
+    </script>
+  <script>
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutPopup = document.getElementById("logoutPopup");
+    const confirmLogout = document.getElementById("confirmLogout");
+    const cancelLogout = document.getElementById("cancelLogout");
+
+    // Show Popup when Logout is Clicked
+    logoutBtn.addEventListener("click", function () {
+        logoutPopup.style.display = "flex";
+    });
+
+    // Redirect to Login Page if Confirmed
+    confirmLogout.addEventListener("click", function () {
+        window.location.href = "login.html"; // Change this to your login page
+    });
+
+    // Close Popup when Canceled
+    cancelLogout.addEventListener("click", function () {
+        logoutPopup.style.display = "none";
+    });
+});
+</script>
+<script>
+    function redirectToRepairs(statusType) {
+        window.location.href = "repair-status.html?status=" + statusType;
+    }
+</script>
+<script>
+    document.querySelector(".nav-toggle").addEventListener("click", function() {
+    document.querySelector(".nav-links").classList.toggle("active");
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const settingsBtn = document.getElementById("settings-btn");
+    const settingsDropdown = document.querySelector(".settings-dropdown");
+
+    settingsBtn.addEventListener("click", function (event) {
+        event.preventDefault();
+        settingsDropdown.classList.toggle("active");
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!settingsDropdown.contains(event.target)) {
+            settingsDropdown.classList.remove("active");
+        }
+    });
+});
+
+</script>
+
+    
+</body>
+</html>  
