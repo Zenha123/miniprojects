@@ -1,15 +1,10 @@
-
 from pathlib import Path
-
-
-
 import os
 from pathlib import Path
-from cryptography.fernet import Fernet
+# from cryptography.fernet import Fernet
 
-ENCRYPTION_KEY = os.environ.get("CHAT_ENCRYPTION_KEY", Fernet.generate_key().decode())
-cipher = Fernet(ENCRYPTION_KEY.encode())
-
+# ENCRYPTION_KEY = os.environ.get("CHAT_ENCRYPTION_KEY", Fernet.generate_key().decode())
+# cipher = Fernet(ENCRYPTION_KEY.encode())
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,24 +16,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 LOGIN_URL = "/login/"  # Redirect non-logged-in users to login page
 LOGOUT_REDIRECT_URL = 'home'
 
-
-#image uploading
-
 MEDIA_URL = "/media/"  # URL for accessing media files
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Path where media files are stored
 
-# Ensure `django.contrib.staticfiles` is installed in `INSTALLED_APPS`
 
-
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-=wl@bzik(a$w6r2dot3h+*0%)_5n2rqzp)(qm&1my$wd%3h--%'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -57,13 +40,24 @@ INSTALLED_APPS = [
     'users',
     'reg',
     'chat',
+    'channels',
+    "daphne",
 
     
 ]
-AUTH_USER_MODEL = 'chat.CustomUser'
+WSGI_APPLICATION = 'reparohub.wsgi.application'
+ASGI_APPLICATION = 'reparohub.asgi.application'
 
 AUTH_USER_MODEL='users.customUser'
-DEFAULT_AUTO_FIELD= 'django.db.models.BigAutoFeild'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -93,11 +87,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'reparohub.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -106,9 +95,6 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -126,8 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -140,13 +124,8 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = '/static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -159,7 +138,6 @@ EMAIL_HOST_USER = 'reparohub2025@gmail.com'
 EMAIL_HOST_PASSWORD = 'jlcj ymmk srie kpxt'
 
 
-AUTH_USER_MODEL = 'users.CustomUser'
 
 
 

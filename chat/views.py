@@ -1,55 +1,59 @@
-from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from .models import ChatRoom, ChatMessage
+from users.models import ServiceCenter
 from django.contrib.auth import get_user_model
-from .models import ChatMessage, cipher
-from django.db import models
 
-CustomUser = get_user_model()
+User = get_user_model()
 
 @login_required
-def send_message(request):
-    if request.method == "POST":
-        sender = request.user
-        receiver_id = request.POST.get("receiver_id")
-        message = request.POST.get("message")
-
-        if not receiver_id or not message:
-            return JsonResponse({"status": "error", "message": "Receiver ID and message are required"})
-
-        try:
-            receiver = CustomUser.objects.get(id=receiver_id)
-            chat_message = ChatMessage(sender=sender, receiver=receiver)
-            chat_message.save_encrypted_message(message)
-            return JsonResponse({"status": "success"})
-        except CustomUser.DoesNotExist:
-            return JsonResponse({"status": "error", "message": "Receiver not found"})
-
-    # Return a response for GET requests or other unsupported methods
-    return HttpResponse("This endpoint only accepts POST requests.", status=405)
+def service_chat(request, customer_id):
+    customer = get_object_or_404(User, id=customer_id)
+    if not hasattr(request.user, 'servicecenter'):
+        return JsonResponse({'error': 'Access denied'}, status=403)
+    
+    room, created = ChatRoom.objects.get_or_create(
+        customer=customer,
+        service_center=request.user
+    )
+    
+    # Mark all messages as read when opening chat
+    ChatMessage.objects.filter(room=room, sender=customer).update(is_read=True)
+    
+    return render(request, 'chat/service_chat.html', {
+        'room': room,
+        'customer': customer,
+    })
 
 @login_required
-def get_messages(request, receiver_id):
-    try:
-        receiver = CustomUser.objects.get(id=receiver_id)
-        sender = request.user
-        messages = ChatMessage.objects.filter(
-            (models.Q(sender=sender, receiver=receiver) | models.Q(sender=receiver, receiver=sender))
-        ).order_by('timestamp')
-
-        chat_data = []
-        for msg in messages:
-            chat_data.append({
-                "sender": msg.sender.email,
-                "message": msg.get_decrypted_message(),
-                "timestamp": msg.timestamp.strftime("%Y-%m-%d %H:%M:%S")
-            })
-
-        return JsonResponse({"messages": chat_data})
-    except CustomUser.DoesNotExist:
-        return JsonResponse({"status": "error", "message": "User not found"})
-
+def get_message_history(request, room_id):
+    room = get_object_or_404(ChatRoom, id=room_id)
+    if request.user not in [room.customer, room.service_center]:
+        return JsonResponse({'error': 'Access denied'}, status=403)
+    
+    messages = ChatMessage.objects.filter(room=room).order_by('timestamp')
+    message_history = []
+    for msg in messages:
+        message_history.append({
+            'id': msg.id,
+            'sender': msg.sender.username,
+            'message': msg.get_decrypted_message(),
+            'timestamp': msg.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            'is_read': msg.is_read,
+            'is_you': msg.sender == request.user,
+        })
+    
+    return JsonResponse({'messages': message_history})
 
 @login_required
-def chat_page(request):
-    return render(request, 'chat.html')
+def mark_message_read(request, message_id):
+    message = get_object_or_404(ChatMessage, id=message_id)
+    if message.sender == request.user:
+        return JsonResponse({'error': 'Cannot mark your own messages as read'}, status=400)
+    if request.user not in [message.room.customer, message.room.service_center]:
+        return JsonResponse({'error': 'Access denied'}, status=403)
+    
+    message.is_read = True
+    message.save()
+    return JsonResponse({'success': True})

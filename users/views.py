@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
-from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.hashers import make_password
 from django.conf import settings
@@ -18,8 +17,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
 from django.utils import timezone
+
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render,redirect,get_object_or_404
+from reg.models import RepairRequest
+
 
 User= get_user_model()
 @csrf_exempt
@@ -350,9 +352,6 @@ def request_detail(request, request_id):
     return render(request, 'users/request_detail.html', context)
     
 
-
-
-
 class RepairStatusLog(models.Model):
     repair = models.ForeignKey(RepairRequest, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=RepairRequest.STATUS_CHOICES)
@@ -361,9 +360,6 @@ class RepairStatusLog(models.Model):
     
     def __str__(self):
         return f"{self.repair} → {self.status} at {self.changed_at}"
-
-
-
 
 def completed(request):
     service_center = get_object_or_404(ServiceCenter, user=request.user)
@@ -379,14 +375,7 @@ def completed(request):
         'service_center': service_center
     }
     return render(request, 'users/complete.html', context)
-    
-
-
-
-
-
-
-
+   
 
 def resend_otp(request):
     if 'signup_data' in request.session:

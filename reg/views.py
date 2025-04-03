@@ -6,6 +6,59 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from users.models import*
 
+from django.conf import settings
+import re
+from django.contrib import messages
+
+
+# Initialize Google NLP client (make sure GOOGLE_APPLICATION_CREDENTIALS is set in settings)
+#os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(settings.BASE_DIR, 'google_credentials.json')
+
+
+# def detect_fake_description(text):
+#     """Detect fake/spam descriptions using only regex patterns"""
+#     patterns = [
+#         # 1. Common spam keywords
+#         r'\b(free|win|prize|money|http|www|\.com|promo|click|earn|income)\b',
+        
+#         # 2. Excessive special characters (>30% of text)
+#         r'([^\w\s])\1{3,}',  # 4+ repeating special chars
+#         r'[^\w\s]{5,}',       # 5+ consecutive special chars
+        
+#         # 3. Phone numbers/emails (often in spam)
+#         r'\b\d{10,}\b',       # 10+ digit numbers
+#         r'\b[\w\.-]+@[\w\.-]+\.\w+\b',
+        
+#         # 4. Gibberish patterns
+#         r'(\w)\1{4,}',        # 5+ repeating letters (aaaaa)
+#         r'\b(\w{15,})\b',     # Very long words
+#     ]
+    
+#     reasons = []
+#     for pattern in patterns:
+#         if re.search(pattern, text, re.IGNORECASE):
+#             if 'free|win|prize' in pattern:
+#                 reasons.append("Contains spam keywords")
+#             elif 'http|www|.com' in pattern:
+#                 reasons.append("Contains URLs/links")
+#             elif '@' in pattern:
+#                 reasons.append("Contains email addresses")
+#             elif r'\d{10}' in pattern:
+#                 reasons.append("Contains phone numbers")
+#             else:
+#                 reasons.append("Suspicious text patterns")
+    
+#     # Additional length check
+#     if len(text.split()) < 8:
+#         reasons.append("Description too short (min 8 words)")
+    
+#     return bool(reasons), reasons
+
+
+
+
+
+
 """def product_reg(request):
     if request.method == "POST":
         product_name = request.POST.get("product_name")
@@ -126,7 +179,18 @@ def repair_req(request):
 def repair_req(request):
     if request.method == "POST":
         product_name = request.POST.get("product_name")
-        issue_description = request.POST.get("issue_description")
+        
+     
+        issue_description = request.POST.get("issue_description", "")
+        
+        # Detect fake descriptions
+    #    # is_fake, reasons = detect_fake_description(issue_description)
+    #     if is_fake:
+    #         messages.error(request, 
+    #             f"Please provide a valid repair description. Issues found: {', '.join(set(reasons))}"
+    #         )
+    #         return redirect("repair_request")
+        
         address = request.POST.get("address")
         preferred_location = request.POST.get("preferred_location")
         service_center = request.POST.get("service_center")

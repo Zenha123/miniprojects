@@ -2,10 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Render the chat page
-    path('chat/', views.chat_page, name='chat'),
-
-    # Handle chat messages
-    path('send_message/', views.send_message, name='send_message'),
-    path('get_messages/<int:receiver_id>/', views.get_messages, name='get_messages'),
+    path('service/<int:customer_id>/', views.service_chat, name='service_chat'),
+    path('api/messages/<int:room_id>/', views.get_message_history, name='message_history'),
+    path('api/mark-read/<int:message_id>/', views.mark_message_read, name='mark_message_read'),
 ]
