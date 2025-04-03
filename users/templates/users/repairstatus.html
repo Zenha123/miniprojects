@@ -19,10 +19,9 @@
             
         </div>
         <ul class="nav-links">
-            <li><a href="cust_dash.html">Home</a></li>
-            <li><a href="repairstatus.html">Repair Status</a></li>
-            <li><a href="service-centers.html">Service Centers</a></li>
-            <li><a href="customer-support.html">Customer Support</a></li>
+            <li><a href="{% url 'custdash' %}">Home</a></li>
+            <li><a href="{% url 'repairstatus' %}">Repair Status</a></li>
+            <li><a href="{% url 'showservicecenter' %}">Service Centers</a></li>
             <li class="settings-dropdown">
                 <a href="#" id="settings-btn">Settings ▼</a>
                 <ul class="dropdown-menu">
@@ -32,7 +31,7 @@
                     <li><a href="#" id="logout-option">Logout</a></li>
                 </ul>
             </li>
-            <li><a href="#" id="logout-btn">Logout</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
         </ul>
         <div class="nav-toggle">
             <i class="fas fa-bars"></i>

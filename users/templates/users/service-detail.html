@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReparoHub - {{service_center.name}}</title>
+  <link rel="stylesheet" href="{% static 'css/service-detail.css' %}">
+  <link rel="stylesheet" href="{% static 'css/cust_dash.css' %}">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">
+        <img src="{% static 'images/reparo.jpg'%}" alt="ReparoHub Logo">
+        
+    </div>
+    <ul class="nav-links">
+        <li><a href="{% url 'custdash' %}">Home</a></li>
+        <li><a href="{% url 'repairstatus' %}">Repair Status</a></li>
+        <li><a href="{% url 'showservicecenter' %}">Service Centers</a></li>
+        <li class="settings-dropdown">
+            <a href="#" id="settings-btn">Settings ▼</a>
+            <ul class="dropdown-menu">
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Change Password</a></li>
+                <li><a href="#" id="dark-mode-toggle">Dark Mode</a></li>
+                <li><a href="#" id="logout-option">Logout</a></li>
+            </ul>
+        </li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+    </ul>
+    <div class="nav-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+</nav>
+
+  <div class="container">
+    <!-- Service Center Page -->
+    <div class="service-center-page">
+      <div class="header">
+        <h1 id="service-center-header">{{service_center.name}}</h1>
+      </div>
+      <!--<div class="rating">
+        {% if service_center.average_rating %}
+          {% for i in "12345" %}
+            {% if forloop.counter <= service_center.average_rating %}
+              <i class="fas fa-star"></i>
+            {% else %}
+              <i class="far fa-star"></i>
+            {% endif %}
+          {% endfor %}
+          <span>({{ service_center.review_count }} reviews)</span>
+        {% else %}
+          <span>No ratings yet</span>
+        {% endif %}
+      </div>
+    </div>-->
+
+
+
+
+      <div class="service-center-info">
+        <p class="service-center-location">📍 {{ service_center.location }}</p>
+        <p class="service-center-email">
+          <i class="fas fa-envelope"></i> {{ service_center.email }}
+        </p>
+        <p class="service-center-hours">
+          <i class="fas fa-clock"></i> {{ service_center.working_hours }}
+        </p>
+      </div>
+      <div class="services-provided">
+        <h3><i class="fas fa-tools"></i> Services Provided</h3>
+        <ul>
+          {% for service in services %}
+          <li>{{ service.name }} - ${{ service.price }}</li>
+          {% empty %}
+          <li>No services listed</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% if user.is_authenticated %}
+      <div class="service-history">
+        <h3><i class="fas fa-history"></i> Your Service History</h3>
+        {% if service_history %}
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Service</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for history in service_history %}
+            <tr>
+              <td>{{ history.request_date|date:"M d, Y" }}</td>
+              <td>{{ history.product_name }}</td>
+              <td class="status-{{ history.status|lower }}">{{ history.status }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p>No service history found with this center.</p>
+        {% endif %}
+      </div>
+      {% endif %}
+      <div class="reviews-section">
+        <h3><i class="fas fa-comments"></i> Customer Reviews</h3>
+        {% if reviews %}
+          {% for review in reviews %}
+          <div class="review">
+            <div class="review-header">
+              <span class="review-author">{{ review.customer.username }}</span>
+              <div class="review-rating">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= review.rating %}
+                    <i class="fas fa-star"></i>
+                  {% else %}
+                    <i class="far fa-star"></i>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <span class="review-date">{{ review.created_at|date:"M d, Y" }}</span>
+            </div>
+            <p class="review-text">{{ review.comment }}</p>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p>No reviews yet. Be the first to review!</p>
+        {% endif %}
+
+        <!-- Add Review Button (for logged in users) -->
+        {% if user.is_authenticated %}
+        <button class="add-review-btn" onclick="showReviewForm()">
+          <i class="fas fa-plus"></i> Add Your Review
+        </button>
+        {% endif %}
+      </div>
+      <button class="go-back-btn"><a href="{% url 'showservicecenter' %}">Go Back</a></button>
+    </div>
+  </div>
+
+
+</body>
+</html>

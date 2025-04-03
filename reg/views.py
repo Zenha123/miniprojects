@@ -124,6 +124,7 @@ def repair_req(request):
 
 @login_required(login_url="/admin/")
 def repair_req(request):
+    product_name = request.GET.get('product', '')
     if request.method == "POST":
         product_name = request.POST.get("product_name")
         issue_description = request.POST.get("issue_description")
@@ -164,8 +165,10 @@ def repair_req(request):
 
         messages.success(request, "Repair request submitted successfully!")
         return redirect("dashboard")
-
-    return render(request, "repair.html")
+    context = {
+        'prefilled_product' : product_name,
+    }
+    return render(request, "repair.html", context)
 
 
 """def fetch_service_centers(request):

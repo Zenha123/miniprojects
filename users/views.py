@@ -251,6 +251,41 @@ def cust_dash(request):
     return render(request, 'users/cust_dash.html', context)
     
 
+def show_service_centers(request):
+    service_centers = ServiceCenter.objects.all().order_by('name')
+
+    context = {
+        'service_centers': service_centers
+    }
+    return render(request, 'users/showing.html', context)
+    
+
+def service_center_detail(request, center_id):
+    service_center = get_object_or_404(ServiceCenter, user_id=center_id)
+    
+    # Get services provided by this center
+    #services = Service.objects.filter(service_center=service_center)
+    
+    # Get reviews for this center
+    #reviews = Review.objects.filter(service_center=service_center)
+    
+    # Get service history for the current user (if logged in)
+    service_history = []
+    if request.user.is_authenticated:
+        service_history = RepairRequest.objects.filter(
+            customer=request.user,
+            service_center=service_center
+        ).order_by('-request_date')
+    
+    context = {
+        'service_center': service_center,
+        #'services': services,
+        #'reviews': reviews,
+        'service_history': service_history
+    }
+    return render(request,'users/service-detail.html',context)
+
+
 @login_required
 def repair_status(request):
     if request.user.user_type != 'Customer':
