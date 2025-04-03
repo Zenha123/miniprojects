@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
-from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.hashers import make_password
 from django.conf import settings
@@ -16,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render,redirect
+from reg.models import RepairRequest
 
 User= get_user_model()
 @csrf_exempt
@@ -207,6 +207,21 @@ def home(request):
 
 
 def servicedash(request):
+    
+    if not hasattr(request.user, 'servicecenter'):
+        return HttpResponseForbidden("Access denied")
+    
+    service_center = request.user.servicecenter
+    repair_requests = RepairRequest.objects.filter(service_center=service_center)
+    pending_requests = repair_requests.filter(status__in=['pending', 'in_progress'])
+    
+    return render(request, 'service/dashboard.html', {
+        'repair_requests': repair_requests,
+        'pending_requests': pending_requests,
+    })
+
+
+
     return render(request, 'users/service-dash.html')
 
 def completed(request):
