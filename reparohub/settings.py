@@ -19,7 +19,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 LOGIN_URL = "/login/"  # Redirect non-logged-in users to login page
-
+LOGOUT_REDIRECT_URL = 'home'
 
 
 #image uploading
@@ -161,6 +161,10 @@ EMAIL_HOST_PASSWORD = 'jlcj ymmk srie kpxt'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
+
+
+SESSION_COOKIE_AGE = 3600 * 24 * 7  # 1 week
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Or 'django.contrib.sessions.backends.cache'
 SESSION_COOKIE_SECURE = False  # Set to True in production (HTTPS only)
 

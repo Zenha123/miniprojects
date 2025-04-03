@@ -60,12 +60,11 @@ def product_reg(request):
         )
 
         messages.success(request, "Product registered successfully!")
-        return redirect("")
+        return redirect("custdash")
 
     return render(request, "productreg.html")
 
 
- 
 
 """def user_dashboard(request):
     products = Product.objects.filter(user=request.user)  # Get products of logged-in user
@@ -88,7 +87,7 @@ def service_reg(request):
     return render(request, 'servicereg.html')
 
 
-"""@login_required(login_url="/admin/") 
+"""@login_required(login_url="/admin/")
 def repair_req(request):
     if request.method == "POST":
         product_name = request.POST.get("product_name")
@@ -102,9 +101,9 @@ def repair_req(request):
             messages.error(request, "All fields are required.")
             return redirect("repair_request")
 
-       
+
         RepairRequest.objects.create(
-            customer=request.user,  
+            customer=request.user,
             product_name=product_name,
             issue_description=issue_description,
             address=address,
@@ -123,7 +122,7 @@ def repair_req(request):
 
 
 
-@login_required(login_url="/admin/") 
+@login_required(login_url="/admin/")
 def repair_req(request):
     if request.method == "POST":
         product_name = request.POST.get("product_name")
@@ -148,13 +147,13 @@ def repair_req(request):
         try:
             service_center = ServiceCenter.objects.get(name=service_center_name)
         except ServiceCenter.DoesNotExist:
-             messages.error(request, "Service center not found!")
-             return redirect("repair_request")  # Redirect to the form page
+            messages.error(request, "Service center not found!")
+            return redirect("repair_request")  # Redirect to the form page
 
         # ✅ Create repair request
         RepairRequest.objects.create(
             #customer=customer,
-            customer=request.user,   
+            customer=request.user,
             product_name=product_name,
             issue_description=issue_description,
             address=address,

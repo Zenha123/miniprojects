@@ -204,6 +204,12 @@ button:hover, .accept-btn:hover, .reject-btn:hover {
     background: #0C2D57;
 }
 
+
+.status-accepted { background-color: #d1ecf1; color: #0c5460; }
+.status-in_progress { background-color: #cce5ff; color: #004085; }
+.status-waiting_for_parts { background-color: #fff3cd; color: #856404; }
+.status-ready_for_pickup { background-color: #d4edda; color: #155724; }
+
 /* Animation */
 @keyframes fadeIn {
     from {

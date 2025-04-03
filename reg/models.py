@@ -23,6 +23,16 @@ class Service(models.Model):
             return self.service
 
 class RepairRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+        ('in_progress', 'In Progress'),
+        ('waiting_for_parts', 'Waiting for Parts'),
+        ('ready_for_pickup', 'Ready for Pickup'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
     customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Link request to customer
     product_name = models.CharField(max_length=255)
     issue_description = models.TextField()
@@ -33,9 +43,12 @@ class RepairRequest(models.Model):
     request_date = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to="repair_images/", blank=True, null=True)
     #service = models.ForeignKey(ServiceCenter, on_delete=models.CASCADE)
-    service_catalog = models.CharField(max_length=1000,blank=True)
+    #service_catalog = models.CharField(max_length=1000,blank=True)
     contact_no = models.CharField(max_length=10,blank=True,null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES,default='pending')
+    completed_date = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
-         return f"Repair Request for {self.product_name} at {self.service_center.name}"
+        return f"Repair Request for {self.product_name} at {self.service_center.name}"
 
 

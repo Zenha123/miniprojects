@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Repairs - {{ request.user.servicecenter.name }}</title>
+    <link rel="stylesheet" href="{% static 'css/active-repairs.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">  <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/></div>
+        <ul class="nav-links">
+            <li><a href="{% url 'sdash' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="{% url 'active_repairs' %}">Active Repairs</a></li>
+            <li><a href="{% url 'complete' %}">Completed Works</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-clipboard-list"></i> Active Repairs</h1>
+            <p class="subtitle">Currently managing repairs for {{ request.user.servicecenter.name }}</p>
+        </div>
+        
+        <div class="table-container">
+            <table class="repair-table">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Customer</th>
+                        <th>Request Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in active_requests %}
+                    <tr>
+                        <td class="request-id-cell">
+                            <div class="request-id-info">
+                                <span class="request-id-badge">#{{ request.id }}</span>
+                                {% if request.product_name %}
+                                <span class="product-name-tooltip">{{ request.product_name }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ request.customer.email }}</td>
+                        <td>{{ request.request_date|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="status-badge status-{{ request.status }}">
+                                <i class="status-icon fas 
+                                    {% if request.status == 'accepted' %}fa-check-circle
+                                    {% elif request.status == 'in_progress' %}fa-spinner
+                                    {% elif request.status == 'waiting_for_parts' %}fa-box-open
+                                    {% elif request.status == 'ready_for_pickup' %}fa-clipboard-check
+                                    {% endif %}"></i>
+                                {{ request.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="actions-cell">
+                            <a href="{% url 'request_detail' request.id %}" class="view-btn">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            {% if request.status == 'ready_for_pickup' %}
+                            <form method="post" action="{% url 'update_request_status' request.id %}" class="inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="completed">
+                                <button type="submit" class="complete-btn">
+                                    <i class="fas fa-check"></i> Complete
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-message">
+                            <i class="fas fa-inbox"></i> No active repairs currently
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
