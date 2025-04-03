@@ -39,6 +39,9 @@
         </div>
     </nav>
     
+
+
+
 <!-- Custom Logout Popup -->
 <div id="logout-popup" class="popup-overlay">
     <div class="popup-box">
@@ -57,6 +60,9 @@
         <h3>See you soon 😊😊</h3>
     </div>
 </div>
+
+
+
 
 
 <!-- Main Content -->
@@ -79,24 +85,32 @@
             </tr>
         </thead>
         <tbody>
+            {% for repair in active_repairs %}
             <tr>
-                <td>1</td>
-                <td>iPhone 12</td>
-                <td>Battery Issue</td>
-                <td>Apple Service Center</td>
-                <td>March 5, 2025</td>
-                <td>March 10, 2025</td>
-                <td><span class="status-badge status-in-progress">In Progress</span></td>
+                <td>{{ repair.id }}</td>
+                    <td>{{ repair.product_name }}</td>
+                    <td>{{ repair.issue_description }}</td>
+                    <td>{{ repair.service_center.name }}</td>
+                    <td>{{ repair.request_date|date:"M d, Y" }}</td>
+                    <td>    </td>
+                    <td>
+                        <span class="status-badge 
+                            {% if repair.status == 'In Progress' %}status-in-progress
+                            {% elif repair.status == 'Pending' %}status-pending
+                            {% elif repair.status == 'Diagnosed' %}status-diagnosed
+                            {% elif repair.status == 'Parts Ordered' %}status-parts-ordered
+                            {% elif repair.status == 'Repairing' %}status-repairing
+                            {% elif repair.status == 'Ready for Pickup' %}status-ready
+                            {% endif %}">
+                            {{ repair.status }}
+                        </span>
+                    </td>
             </tr>
-            <tr>
-                <td>2</td>
-                <td>Samsung Galaxy S21</td>
-                <td>Screen Replacement</td>
-                <td>Samsung Care</td>
-                <td>March 3, 2025</td>
-                <td>March 9, 2025</td>
-                <td><span class="status-badge status-pending">Pending</span></td>
-            </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center;">No active repair requests</td>
+                </tr>
+            {% endfor %}
         </tbody>
     </table>
     
@@ -117,26 +131,30 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for repair in completed_repairs %}
                     <tr>
-                        <td>MacBook Air</td>
-                        <td>Keyboard Replacement</td>
-                        <td>Apple Service Center</td>
-                        <td>Feb 25, 2025</td>
-                        <td>March 1, 2025</td>
+                        <td>{{ repair.product_name }}</td>
+                        <td>{{ repair.issue_description }}</td>
+                        <td>{{ repair.service_center.name }}</td>
+                        <td>{{ repair.request_date|date:"M d, Y" }}</td>
+                        <td>   </td>
                         <td>
-                            <button class="review-btn" onclick="redirectToReview('R1234')">Review</button>
+                            {% if not repair.has_review %}
+                            <button class="review-btn" onclick="redirectToReview('{{ repair.id }}')">
+                                Leave Review
+                            </button>
+                            {% else %}
+                            <button class="view-review-btn" onclick="redirectToReview('{{ repair.id }}')">
+                                View Review
+                            </button>
+                            {% endif %}
                         </td>
                     </tr>
-                    <tr>
-                        <td>OnePlus 9</td>
-                        <td>Camera Issue</td>
-                        <td>OnePlus Repair Hub</td>
-                        <td>Feb 20, 2025</td>
-                        <td>Feb 27, 2025</td>
-                        <td>
-                            <button class="review-btn" onclick="redirectToReview('R1234')">Review</button>
-                        </td>
-                    </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center;">No completed repairs</td>
+                        </tr>
+                        {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -147,8 +165,7 @@
     function toggleDropdown() {
         document.querySelector(".dropdown-content").classList.toggle("show");
     }
-</script>
-<script>
+
     function showLogoutPopup() {
         document.getElementById("logout-popup").style.display = "flex";
     }
@@ -158,72 +175,30 @@
     }
 
     function logoutUser() {
-        // Hide popup & show goodbye message
         document.getElementById("logout-popup").style.display = "none";
         document.getElementById("goodbye-message").style.display = "flex";
-
-        // Redirect after 1.5 seconds
         setTimeout(() => {
-            window.location.href = "cust_dash.html";
+            window.location.href = "{% url 'logout' %}";
         }, 1500);
     }
-</script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const repairStatusType = sessionStorage.getItem("repairStatusType");
-
-        if (repairStatusType === "active") {
-            highlightActiveRepairs();
-        } else if (repairStatusType === "completed") {
-            openCompletedRepairsDropdown();
-        }
-
-        // Clear stored data after action is performed
-        sessionStorage.removeItem("repairStatusType");
-    });
-
-    function highlightActiveRepairs() {
-        const activeRows = document.querySelectorAll(".status.in-progress, .status.pending");
-        activeRows.forEach(row => row.parentElement.style.backgroundColor = "#e0e0e0"); // Grey highlight
-    }
-
-    function openCompletedRepairsDropdown() {
-        const dropdownContent = document.querySelector(".dropdown-content");
-        dropdownContent.classList.add("show"); // Open dropdown
-    }
-</script>
-<script>
     function handleRepairStatusRedirect() {
         const urlParams = new URLSearchParams(window.location.search);
         const statusType = urlParams.get("status");
 
-        if (statusType === "active") {
-            highlightActiveRepairs();
-        } else if (statusType === "completed") {
-            openCompletedRepairsDropdown();
+        if (statusType === "completed") {
+            document.querySelector(".dropdown-content").classList.add("show");
         }
     }
 
-    function highlightActiveRepairs() {
-        document.querySelectorAll(".repair-status tbody tr").forEach(row => {
-            row.classList.add("highlight-row");
-        });
-    }
-
-    function openCompletedRepairsDropdown() {
-        document.querySelector(".dropdown-content").classList.add("show");
-        document.querySelectorAll(".dropdown-content tbody tr").forEach(row => {
-            row.classList.add("highlight-row");
-        });
-    }
     function redirectToReview(repairId) {
-    window.location.href = `feedback.html?repairId=${repairId}`;
-}
+        window.location.href = `feedback.html?repair_id=${repairId}`;
+    }
 
+    // Add event listeners
+    document.getElementById("logout-btn").addEventListener("click", showLogoutPopup);
+    document.getElementById("logout-option").addEventListener("click", showLogoutPopup);
 </script>
 
-
-
 </body>
-</html>  
+</html>

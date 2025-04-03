@@ -149,7 +149,7 @@
       </div>
       <h2>Request a Repair</h2>
       <p>Submit your repair request easily and get prompt service.</p>
-      <button>Contact Support</button>
+      <button onclick="gohome()">Go Back Home</button>
     </div>
 
     <!-- Right Panel: Form -->
@@ -207,6 +207,10 @@
   </div>
 
   <script>
+    function gohome(){
+      window.location.href = "{% url 'custdash' %}";
+    }
+
     function fetchServiceCenters() {
       let location = document.getElementById('preferred_location').value;
       if (!location) {
@@ -217,7 +221,7 @@
       console.log("📤 Sending request for location:", location);
 
       $.ajax({
-        url: "{% url 'fetch_service_centers' %}",
+        url: "{% url 'reg:fetch_service_centers' %}",
         type: "GET",
         data: { location: location },
         success: function(data) {

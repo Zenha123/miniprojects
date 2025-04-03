@@ -1,0 +1,296 @@
+/* Base Styles */
+:root {
+    --primary-color: #0C2D57;
+    --secondary-color: #FC6736;
+    --light-color: #EFECEC;
+    --dark-color: #1A1A1A;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --danger-color: #dc3545;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+    color: var(--dark-color);
+    line-height: 1.6;
+}
+
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo {
+    height: 50px;
+    width: auto;
+    border-radius: 50%;
+}
+
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-links i {
+    font-size: 1.1rem;
+}
+
+/* Main Container */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 2rem auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.page-header h1 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-header .subtitle {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* Table Styles */
+.table-container {
+    overflow-x: auto;
+}
+
+.repair-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.repair-table th, .repair-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.repair-table th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.repair-table tr:hover {
+    background-color: rgba(12, 45, 87, 0.05);
+}
+
+/* Product Cell */
+.request-id-cell {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.request-id-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.product-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid #eee;
+}
+
+
+.request-id-badge {
+    background-color: rgba(12, 45, 87, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.product-name-tooltip {
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: normal;
+    display: none;
+    position: absolute;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 100;
+    margin-top: 1.5rem;
+}
+
+.request-id-info:hover .product-name-tooltip {
+    display: block;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-icon {
+    font-size: 1rem;
+}
+
+.status-accepted {
+    background-color: rgba(209, 236, 241, 0.5);
+    color: #0c5460;
+    border: 1px solid #d1ecf1;
+}
+
+.status-in_progress {
+    background-color: rgba(204, 229, 255, 0.5);
+    color: #004085;
+    border: 1px solid #cce5ff;
+}
+
+.status-waiting_for_parts {
+    background-color: rgba(255, 243, 205, 0.5);
+    color: #856404;
+    border: 1px solid #fff3cd;
+}
+
+.status-ready_for_pickup {
+    background-color: rgba(212, 237, 218, 0.5);
+    color: #155724;
+    border: 1px solid #d4edda;
+}
+
+/* Action Buttons */
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-btn, .complete-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.view-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.view-btn:hover {
+    background-color: #0a254a;
+    transform: translateY(-2px);
+}
+
+.complete-btn {
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+}
+
+.complete-btn:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+/* Empty Message */
+.empty-message {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .nav-links {
+        margin-top: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+    
+    .repair-table th, .repair-table td {
+        padding: 0.5rem;
+    }
+}

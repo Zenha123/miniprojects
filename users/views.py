@@ -11,11 +11,17 @@ from .models import CustomUser, Customer, ServiceCenter, OTP
 from .forms import CustomUserCreationForm, CustomerForm, ServiceCenterForm, OTPForm
 from django.core.mail import send_mail
 import pyotp
+from django.contrib import messages
+from reg.models import *
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
 from django.utils import timezone
-from django.shortcuts import render,redirect
+
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import render,redirect,get_object_or_404
 from reg.models import RepairRequest
+
 
 User= get_user_model()
 @csrf_exempt
@@ -26,12 +32,17 @@ def user_login(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         user = authenticate(request, email=email, password=password)
-        if user:
+        if user is not None:
             login(request, user)
-            return redirect('repairreq')
+            if user.user_type == 'Customer':
+                return redirect('custdash')
+            elif user.user_type == 'Service Center':
+                return redirect('sdash')
         else:
             return render(request, 'users/login.html', {'error': 'Invalid credentials'})
     return render(request, 'users/login.html')
+
+
 
 def forgot_password(request):
     if request.method == 'POST':
@@ -206,27 +217,165 @@ def home(request):
     return render(request, 'users/home.html')
 
 
+
+@login_required
+def cust_dash(request):
+    if request.user.user_type != 'Customer':
+        return redirect('login')
+    
+
+    try:
+        customer_profile = Customer.objects.get(user=request.user)
+    except Customer.DoesNotExist:
+        customer_profile = None
+
+    active_repairs = RepairRequest.objects.filter(
+        customer=request.user
+    ).exclude(
+        status__in=['completed', 'cancelled']
+    ).count()
+
+    completed_repairs = RepairRequest.objects.filter(
+        customer=request.user,
+        status='completed'
+    ).count()
+
+    customer_products = Product.objects.filter(customer__user=request.user)
+
+
+    context = {
+        'customer': request.user,
+        'customer_profile': customer_profile,
+        'active_repairs': active_repairs,
+        'completed_repairs': completed_repairs,
+        'customer_products': customer_products,
+    }
+    return render(request, 'users/cust_dash.html', context)
+    
+
+@login_required
+def repair_status(request):
+    if request.user.user_type != 'Customer':
+        return redirect('login')
+    
+
+    try:
+        customer_profile = Customer.objects.get(user=request.user)
+    except Customer.DoesNotExist:
+        customer_profile = None
+
+    active_repairs = RepairRequest.objects.filter(
+        customer=request.user
+    ).exclude(
+        status__in=['completed', 'cancelled']
+    )
+
+    completed_repairs = RepairRequest.objects.filter(
+        customer=request.user,
+        status='completed'
+    )
+    context = {
+        'active_repairs': active_repairs,
+        'completed_repairs': completed_repairs,
+    }
+    return render(request, 'users/repairstatus.html', context)
+
+
+@login_required
 def servicedash(request):
+    try:
+        service_center = request.user.servicecenter
+    except:
+        messages.error(request, 'you are not associated with any service center')
+        return redirect('login')
+    pending_requests = RepairRequest.objects.filter(service_center=service_center,status='pending')
     
+    in_progress_requests = RepairRequest.objects.filter(
+        service_center=service_center,
+        status='in_progress'
+    )
+
+    context = {'pending_requests':pending_requests,
+            'in_progress_requests': in_progress_requests}
+    
+    return render(request, 'users/service-dash.html',context)
+
+@login_required
+def update_request_status(request, request_id):
+    repair_request = get_object_or_404(RepairRequest, id=request_id)
+
+    if repair_request.service_center != request.user.servicecenter:
+        messages.error(request,"you are not authorized to update this request.")
+        return redirect('sdash')
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(RepairRequest.STATUS_CHOICES).keys():
+            repair_request.status = new_status
+            repair_request.save()
+            messages.success(request,f"Request status updated to {new_status}.")
+
+        else:
+            messages.error(request,"Invalid status.")
+
+    return redirect('sdash')
+
+
+def active_repairs_view(request):
     if not hasattr(request.user, 'servicecenter'):
-        return HttpResponseForbidden("Access denied")
+        raise PermissionDenied("Service center profile required")
+    # Get requests that are accepted but not completed
+    active_requests = RepairRequest.objects.filter(
+        service_center=request.user.servicecenter,
+        status__in=['accepted', 'in_progress', 'waiting_for_parts', 'ready_for_pickup']
+    ).order_by('-request_date')
     
-    service_center = request.user.servicecenter
-    repair_requests = RepairRequest.objects.filter(service_center=service_center)
-    pending_requests = repair_requests.filter(status__in=['pending', 'in_progress'])
+    context = {
+        'active_requests': active_requests
+    }
+
+    return render(request, 'users/active_repairs.html', context)
+
+
+
+@login_required
+def request_detail(request, request_id):
+    repair_request = get_object_or_404(RepairRequest, id=request_id, service_center=request.user.servicecenter)
+    # Check if user has permission to view this request
+    if not (request.user == repair_request.customer or (hasattr(request.user, 'servicecenter') and request.user.servicecenter == repair_request.service_center)):
+        raise PermissionDenied
     
-    return render(request, 'service/dashboard.html', {
-        'repair_requests': repair_requests,
-        'pending_requests': pending_requests,
-    })
+    context = {
+        'repair_request': repair_request,
+        'user_is_service_center': hasattr(request.user, 'servicecenter')
+    }
+    return render(request, 'users/request_detail.html', context)
+    
 
-
-
-    return render(request, 'users/service-dash.html')
+class RepairStatusLog(models.Model):
+    repair = models.ForeignKey(RepairRequest, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=RepairRequest.STATUS_CHOICES)
+    changed_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
+    changed_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.repair} → {self.status} at {self.changed_at}"
 
 def completed(request):
-    return render(request, 'users/complete.html')
-
+    service_center = get_object_or_404(ServiceCenter, user=request.user)
+    
+    # Filter completed requests for this service center
+    completed_requests = RepairRequest.objects.filter(
+        service_center=service_center,
+        status='completed'
+    ).order_by('-completed_date')  # Newest first
+    
+    context = {
+        'completed_requests': completed_requests,
+        'service_center': service_center
+    }
+    return render(request, 'users/complete.html', context)
+   
 
 def resend_otp(request):
     if 'signup_data' in request.session:
@@ -246,10 +395,8 @@ def resend_otp(request):
 
     return redirect('verify_otp')
 
-def cust_dash(request):
-    return render(request, 'users/cust_dash.html')
 
+'''def repair_status(request):
+    return render(request, 'users/repairstatus.html')'''
 
-def repair_status(request):
-    return render(request, 'users/repairstatus.html')
 

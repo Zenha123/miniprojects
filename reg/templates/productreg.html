@@ -57,7 +57,7 @@
     <div class="right-panel">
       <div class="form-container">
         <h2>Register Here</h2>
-        <form method="post" action="{% url 'product_reg' %}">
+        <form method="post" action="{% url 'reg:product_reg' %}">
           {% csrf_token %}
           <div class="form-group">
             <label for="product_name">Product Name</label>

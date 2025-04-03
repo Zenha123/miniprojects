@@ -20,8 +20,8 @@
                 
             </div>
             <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="repair-status.html">Repair Status</a></li>
+                <li><a href="{% url 'custdash' %}">Home</a></li>
+                <li><a href="{% url 'repairstatus' %}">Repair Status</a></li>
                 <li><a href="service-centers.html">Service Centers</a></li>
                 <li><a href="customer-support.html">Customer Support</a></li>
                 <li class="settings-dropdown">
@@ -45,19 +45,19 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="welcome-container">
-                               <h1 class="welcome-text">Welcome, [Customer Name]</h1>
+                            <h1 class="welcome-text">Welcome,{{customer_profile.name}}</h1>
             </div>
             
 
- <!-- Quick Stats -->
+<!-- Quick Stats -->
 <div class="quick-stats">
     <button class="stat" onclick="redirectToRepairs('active')">
         <h3>Active Repairs</h3>
-        <p>2</p>
+        <p>{{ active_repairs }}</p>
     </button>
     <button class="stat" onclick="redirectToRepairs('completed')">
         <h3>Completed Repairs</h3>
-        <p>5</p>
+        <p>{{ completed_repairs }}</p>
     </button>
     
 </div>
@@ -78,18 +78,28 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for product in customer_products %}
                         <tr>
-                            <td>iPhone 12</td>
-                            <td>A2172</td>
-                            <td>Under Warranty</td>
-                            <td><button class="repair-btn">Request Repair</button></td>
+                            <td>{{ product.product_name }}</td>
+                            <td>{{ product.model_number }}</td>
+                            <td>
+                                {% if product.warranty_status %}
+                                    Under Warranty ({{ product.warranty_status }} months)
+                                {% else %}
+                                    Out of Warranty
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="repair-btn" onclick="redirectTorequestform()">
+                                    Request Repair
+                                </button>
+                            </td>
                         </tr>
+                        {% empty %}
                         <tr>
-                            <td>Samsung Galaxy S21</td>
-                            <td>SM-G991B</td>
-                            <td>Out of Warranty</td>
-                            <td><button class="repair-btn">Request Repair</button></td>
+                            <td colspan="4">No products registered yet</td>
                         </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -97,8 +107,12 @@
     </div>
 
     <script>
+        function redirectTorequestform() {
+            window.location.href = "{% url 'reg:repair_request' %}";
+        }
+
         function redirectToProductRegistration() {
-            window.location.href = "product-registration.html";
+            window.location.href = "{% url 'reg:product_reg' %}";
         }
     </script>
   <script>
@@ -156,4 +170,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
     
 </body>
-</html>  
+</html>
