@@ -6,32 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Service Center Registration</title>
   <link rel="stylesheet" href="{% static 'css/service.css' %}" />
-  <style>
-  </style>
 </head>
 <body>
-
-
-
-
-
   <nav class="navbar">
-    <div class="nav-logo">
-      <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/>
-       
-    </div>
-    <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="repair-status.html">Repair Status</a></li>
-        <li><a href="service-centers.html">Service Centers</a></li>
-        <li><a href="customer-support.html">Customer Support</a></li>
-        <li><a href="settings.html">Settings</a></li>
-        <li><a href="#" id="logout-btn">Logout</a></li>
-    </ul>
-    <div class="nav-toggle">
-        <i class="fas fa-bars"></i>
-    </div>
-</nav>
+    <nav class="navbar">
+      <div class="logo">  <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/></div>
+      <ul class="nav-links">
+          <li><a href="{% url 'sdash' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="{% url 'active_repairs' %}">Active Repairs</a></li>
+          <li><a href="{% url 'complete' %}">Completed Works</a></li>
+          <li><a href="{% url 'reg:service_register' %}">reg service</a></li>
+          <li><a href="{% url 'logout' %}">Logout</a></li>
+      </ul>
+  </nav>
 
   <div class="container">
     <!-- Left Panel -->
@@ -40,49 +27,42 @@
         <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/>
       </div>
       <h2>Welcome to Our Service Center</h2>
-      <p>Register your service center and join our growing network.</p>
+      <p>Add your service details to be visible to customers.</p>
       <button>About Us</button>
     </div>
 
     <!-- Right Panel: Registration Form -->
     <div class="right-panel">
       <div class="form-container">
-        <h2>Register Here</h2>
-        <form method="post">
+        <h2>Add Service Details</h2>
         
+        <!-- Display messages -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <form method="post">
+          {% csrf_token %}
+          
           <div class="form-group">
-            <label for="center_name">Service Center Name</label>
+            <label for="service_name">Service Name</label>
             <input
               type="text"
-              id="center_name"
-              name="center_name"
-              placeholder="Enter Service Center Name"
+              id="service_name"
+              name="service_name"
+              placeholder="Enter Service Name"
               required
             />
           </div>
           
-          <div class="form-group">
-            <label for="owner_name">service catalog</label>
-            <input
-              type="text"
-              id="service catalog"
-              name="service catalog"
-              placeholder="Enter service catalog"
-              required
-            />
-          </div>
           
-          <div class="form-group">
-            <label for="contact">Contact Number</label>
-            <input
-              type="tel"
-              id="contact"
-              name="contact"
-              placeholder="Enter Contact Number"
-              required
-            />
-          </div>
-          <button type="submit">Register</button>
+          <button type="submit">Add Service</button>
         </form>
       </div>
     </div>

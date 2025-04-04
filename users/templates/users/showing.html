@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReparoHub - Service Centers</title>
+  <link rel="stylesheet" href="{% static 'css/showing.css' %}">
+  <link rel="stylesheet" href="{% static 'css/cust_dash.css' %}">
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">
+        <img src="{% static 'images/reparo.jpg'%}" alt="ReparoHub Logo">
+        
+    </div>
+    <ul class="nav-links">
+        <li><a href="{% url 'custdash' %}">Home</a></li>
+        <li><a href="{% url 'repairstatus' %}">Repair Status</a></li>
+        <li><a href="{% url 'showservicecenter' %}">Service Centers</a></li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+    </ul>
+    <div class="nav-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+</nav>
+
+
+  <div class="container">
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <input type="text" placeholder="Search service centers...">
+      <i class="fas fa-search"></i>
+    </div>
+
+    <!-- Service Centers List -->
+    <div class="service-centers-list">
+      {% for center in service_centers %}
+      <div class="service-center-card">
+        <div class="card-header">
+          <h2>{{center.name}}</h2>
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <p>📍{{ center.location }}</p>
+        <div class="card-details">
+          <p><i class="fas fa-envelope"></i> {{ center.user.email }}</p>
+          <p><i class="fas fa-clock"></i> {{ center.working_hours }}</p>
+          {% if center.specializations %}
+          <p><i class="fas fa-tools"></i> Specializations: {{ center.specializations }}</p>
+          {% endif %}
+        </div>
+        <a href="{% url 'servicecenterdetail' center.user_id %}" class="btn-details">
+          View Details <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+      {% empty %}
+      <div class="no-centers">
+        <p>No service centers found in our database.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+
+  <script>
+    document.getElementById('search-input').addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      const cards = document.querySelectorAll('.service-center-card');
+      
+      cards.forEach(card => {
+        const centerName = card.querySelector('h2').textContent.toLowerCase();
+        const centerAddress = card.querySelector('p').textContent.toLowerCase();
+        
+        if (centerName.includes(searchTerm) || centerAddress.includes(searchTerm)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+    
+  </script>
+</body>
+</html>

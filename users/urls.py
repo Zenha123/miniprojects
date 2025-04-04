@@ -21,4 +21,7 @@ urlpatterns = [
     path('active-repairs/', views.active_repairs_view, name='active_repairs'),
     path('request/<int:request_id>/', views.request_detail, name='request_detail'),
     path('update-status/<int:request_id>/', views.update_request_status, name='update_request_status'),
+
+    path('showservicecenter/', views.show_service_centers, name='showservicecenter'),
+    path('servicedetail/<int:center_id>/',views.service_center_detail, name='servicecenterdetail'),
 ]

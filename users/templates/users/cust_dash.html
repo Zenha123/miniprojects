@@ -22,18 +22,9 @@
             <ul class="nav-links">
                 <li><a href="{% url 'custdash' %}">Home</a></li>
                 <li><a href="{% url 'repairstatus' %}">Repair Status</a></li>
-                <li><a href="service-centers.html">Service Centers</a></li>
-                <li><a href="customer-support.html">Customer Support</a></li>
-                <li class="settings-dropdown">
-                    <a href="#" id="settings-btn">Settings ▼</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Profile</a></li>
-                        <li><a href="#">Change Password</a></li>
-                        <li><a href="#" id="dark-mode-toggle">Dark Mode</a></li>
-                        <li><a href="#" id="logout-option">Logout</a></li>
-                    </ul>
-                </li>
-                <li><a href="#" id="logout-btn">Logout</a></li>
+                <li><a href="{% url 'showservicecenter' %}">Service Centers</a></li>
+                
+                <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
             <div class="nav-toggle">
                 <i class="fas fa-bars"></i>
@@ -90,7 +81,7 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <button class="repair-btn" onclick="redirectTorequestform()">
+                                <button class="repair-btn" onclick="redirectTorequestform('{{product.product_name}}')">
                                     Request Repair
                                 </button>
                             </td>
@@ -107,38 +98,15 @@
     </div>
 
     <script>
-        function redirectTorequestform() {
-            window.location.href = "{% url 'reg:repair_request' %}";
+        function redirectTorequestform(productName) {
+            window.location.href = "{% url 'reg:repair_request' %}?product="+ encodeURIComponent(productName);
         }
 
         function redirectToProductRegistration() {
             window.location.href = "{% url 'reg:product_reg' %}";
         }
     </script>
-  <script>
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const logoutBtn = document.getElementById("logoutBtn");
-    const logoutPopup = document.getElementById("logoutPopup");
-    const confirmLogout = document.getElementById("confirmLogout");
-    const cancelLogout = document.getElementById("cancelLogout");
-
-    // Show Popup when Logout is Clicked
-    logoutBtn.addEventListener("click", function () {
-        logoutPopup.style.display = "flex";
-    });
-
-    // Redirect to Login Page if Confirmed
-    confirmLogout.addEventListener("click", function () {
-        window.location.href = "login.html"; // Change this to your login page
-    });
-
-    // Close Popup when Canceled
-    cancelLogout.addEventListener("click", function () {
-        logoutPopup.style.display = "none";
-    });
-});
-</script>
+  
 <script>
     function redirectToRepairs(statusType) {
         window.location.href = "repair-status.html?status=" + statusType;
