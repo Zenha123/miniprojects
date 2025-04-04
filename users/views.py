@@ -184,7 +184,7 @@ def verify_otp(request):
 
             # Log the user in
             login(request, user)
-            return redirect('product_reg')
+            return redirect('home')
 
         else:
             return render(request, 'users/verify_otp.html', {'error': 'Invalid OTP', 'message':message})
@@ -264,7 +264,7 @@ def service_center_detail(request, center_id):
     service_center = get_object_or_404(ServiceCenter, user_id=center_id)
     
     # Get services provided by this center
-    #services = Service.objects.filter(service_center=service_center)
+    services = Service.objects.filter(service=service_center)
     
     # Get reviews for this center
     #reviews = Review.objects.filter(service_center=service_center)
@@ -279,7 +279,7 @@ def service_center_detail(request, center_id):
     
     context = {
         'service_center': service_center,
-        #'services': services,
+        'services': services,
         #'reviews': reviews,
         'service_history': service_history
     }
@@ -291,7 +291,6 @@ def repair_status(request):
     if request.user.user_type != 'Customer':
         return redirect('login')
     
-
     try:
         customer_profile = Customer.objects.get(user=request.user)
     except Customer.DoesNotExist:

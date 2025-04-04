@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from users.models import*
 
+
 """def product_reg(request):
     if request.method == "POST":
         product_name = request.POST.get("product_name")
@@ -19,13 +20,13 @@ from users.models import*
 
         product = Product.objects.create(
             user=request.user,
-            customer=customer,  
+            customer=customer,
             product_name=product_name,
             model_number=model_number,
             purchase_date=purchase_date,
             warranty_status=warranty_status
         )
-       
+
         messages.success(request, "Product registered successfully!")
         return redirect("dashboard")
     return render(request, 'productreg.html')"""
@@ -82,9 +83,41 @@ def user_dashboard(request):
 
 
 
-
+@login_required
 def service_reg(request):
-    return render(request, 'servicereg.html')
+    try:
+        service_center = ServiceCenter.objects.get(user=request.user)
+    except ServiceCenter.DoesNotExist:
+        messages.error(request, "You are not registered as a service center.")
+        return redirect('users/login')  # Redirect to an appropriate page
+
+    if request.method == "POST":
+        service_name = request.POST.get("service_name")
+        contact_no = request.POST.get("contact_no")
+        
+        if contact_no and len(contact_no) != 10:
+            messages.error(request, "Contact number must be 10 digits.")
+            return redirect('service_register')
+
+        if not (service_name):
+            messages.error(request, " service is  required.")
+            return redirect("service_register")
+
+
+        # ✅ Create the product
+        try:
+            Service.objects.create(
+                service=service_center,
+                service_name=service_name,
+                contact_no=contact_no,
+            )
+            messages.success(request, "Service details added successfully!")
+            return redirect('service-center-dashboard')  # Redirect to dashboard or confirmation page
+        except Exception as e:
+            messages.error(request, f"Error saving service details: {str(e)}")
+
+
+    return render(request, 'servicereg.html', {'service_center': service_center})
 
 
 """@login_required(login_url="/admin/")
@@ -164,7 +197,7 @@ def repair_req(request):
         )
 
         messages.success(request, "Repair request submitted successfully!")
-        return redirect("dashboard")
+        return redirect("custdash")
     context = {
         'prefilled_product' : product_name,
     }

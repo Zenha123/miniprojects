@@ -17,10 +17,11 @@ class Product(models.Model):
 class Service(models.Model):
 
         service = models.ForeignKey(ServiceCenter, on_delete=models.CASCADE)
-        service_catalog = models.CharField(max_length=1000,blank=True)
-        contact_no = models.CharField(max_length=10,blank=True,null=True)
+        service_name = models.CharField(max_length=1000,blank=True)
+        
+        
         def __str__(self):
-            return self.service
+            return f"{self.service_name} ({self.service.name})"
 
 class RepairRequest(models.Model):
     STATUS_CHOICES = [
