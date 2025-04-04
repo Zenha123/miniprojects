@@ -6,12 +6,175 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Service Center Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/service-dash.css' %}">
+    <style>
+        /* Chatbox Styles */
+        .chat-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .chat-container {
+            position: fixed;
+            bottom: 70px;
+            right: 20px;
+            width: 350px;
+            height: 450px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            border: 1px solid #ddd;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #007bff;
+            color: white;
+            padding: 12px 15px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .chat-header button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .received {
+            background: #e5e5ea;
+            margin-right: auto;
+        }
+
+        .sent {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #666;
+            display: block;
+            margin-top: 3px;
+            text-align: right;
+        }
+
+        .sent .message-time {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: #eee;
+            border-top: 1px solid #ddd;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-input button {
+            margin-left: 8px;
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background: #0069d9;
+        }
+
+        /* Notification badge */
+        .chat-notification {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Customer selection in chat */
+        .customer-selector {
+            padding: 8px 15px;
+            border-bottom: 1px solid #ddd;
+            background: #f5f5f5;
+        }
+
+        .customer-selector select {
+            width: 100%;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        /* Add to your existing table styles */
+        .chat-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="logo">  <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/></div>
+        <div class="logo"><img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/></div>
         <ul class="nav-links">
             <li><a href="{% url 'sdash' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
             <li><a href="{% url 'active_repairs' %}">Active Repairs</a></li>
@@ -23,7 +186,8 @@
 
     <!-- Main Content -->
     <div class="container">
-        <h1>Welcome, {{request.user.servicecenter.name}}</h1>
+
+        <h1>Welcome, {{ request.user.username }}</h1>
 
         <!-- Repair Requests Table -->
         <h2>Repair Requests</h2>
@@ -66,6 +230,274 @@
         </table>
     </div>
 
-
+    <script>
+        // Global variables
+        let chatSocket = null;
+        let currentCustomerId = null;
+        let currentCustomerName = null;
+        let currentRoomId = null;
+        const unreadMessages = {};
+        
+        // Initialize chat functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize unread messages count
+            {% for request in repair_requests %}
+            unreadMessages['{{ request.customer.id }}'] = 0;
+            {% endfor %}
+            
+            // Chatbox toggle
+            document.getElementById("open-chat").addEventListener("click", toggleChatbox);
+            document.getElementById("close-chat").addEventListener("click", toggleChatbox);
+            
+            // Request notification permission
+            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission();
+            }
+        });
+        
+        function toggleChatbox() {
+            const chatbox = document.getElementById("chatbox");
+            if (chatbox.style.display === "none") {
+                chatbox.style.display = "flex";
+                if (currentCustomerId) {
+                    loadChatHistory(currentRoomId);
+                }
+            } else {
+                chatbox.style.display = "none";
+            }
+        }
+        
+        function openChat(customerId, customerName) {
+            currentCustomerId = customerId;
+            currentCustomerName = customerName;
+            
+            // Update UI
+            document.getElementById("chat-title").innerHTML = `Chat with <span id="chat-customer-name">${customerName}</span>`;
+            document.getElementById("customer-select").value = customerId;
+            
+            // Get or create chat room
+            fetch(`/chat/api/get-room/${customerId}/`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.room_id) {
+                    currentRoomId = data.room_id;
+                    
+                    // Open chat if not already open
+                    if (document.getElementById("chatbox").style.display === "none") {
+                        toggleChatbox();
+                    }
+                    
+                    // Connect WebSocket if not already connected
+                    if (!chatSocket || chatSocket.readyState === WebSocket.CLOSED) {
+                        connectWebSocket(currentRoomId);
+                    } else if (chatSocket.readyState === WebSocket.OPEN) {
+                        loadChatHistory(currentRoomId);
+                    }
+                    
+                    // Reset unread count
+                    unreadMessages[customerId] = 0;
+                    updateNotificationBadge();
+                }
+            });
+        }
+        
+        function changeChatCustomer() {
+            const select = document.getElementById("customer-select");
+            const customerId = select.value;
+            const customerName = select.options[select.selectedIndex].text.split(' (')[0];
+            
+            if (customerId) {
+                openChat(customerId, customerName);
+            }
+        }
+        
+        function connectWebSocket(roomId) {
+            // Close previous connection if exists
+            if (chatSocket) {
+                chatSocket.close();
+            }
+            
+            // Create new WebSocket connection
+            chatSocket = new WebSocket(
+                'ws://' + window.location.host +
+                '/ws/chat/' + roomId + '/'
+            );
+            
+            chatSocket.onopen = function(e) {
+                console.log("WebSocket connection established");
+                loadChatHistory(roomId);
+            };
+            
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                
+                if (data.type === 'chat_message') {
+                    // Check if this message is for the currently open chat
+                    if (currentCustomerId == data.sender_id) {
+                        // Add message to chat
+                        addMessageToChat(data, false);
+                        
+                        // Mark as read
+                        if (!data.is_you) {
+                            fetch(`/chat/api/mark-read/${data.message_id}/`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': '{{ csrf_token }}',
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                        }
+                    } else {
+                        // Increment unread count
+                        unreadMessages[data.sender_id] = (unreadMessages[data.sender_id] || 0) + 1;
+                        updateNotificationBadge();
+                        
+                        // Show desktop notification
+                        if (Notification.permission === "granted") {
+                            new Notification(`New message from ${data.sender_name}`, {
+                                body: data.message,
+                                icon: '{% static "images/imager.jpg" %}'
+                            });
+                        }
+                    }
+                }
+            };
+            
+            chatSocket.onclose = function(e) {
+                console.log("WebSocket connection closed, attempting to reconnect...");
+                setTimeout(function() {
+                    if (currentRoomId) {
+                        connectWebSocket(currentRoomId);
+                    }
+                }, 5000);
+            };
+            
+            chatSocket.onerror = function(e) {
+                console.error("WebSocket error:", e);
+            };
+        }
+        
+        function loadChatHistory(roomId) {
+            fetch(`/chat/api/messages/${roomId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    const chatMessages = document.getElementById("chat-messages");
+                    chatMessages.innerHTML = '';
+                    
+                    if (data.messages.length === 0) {
+                        chatMessages.innerHTML = '<p>No messages yet. Start the conversation!</p>';
+                    } else {
+                        data.messages.forEach(msg => {
+                            addMessageToChat(msg, true);
+                        });
+                        scrollToBottom();
+                    }
+                });
+        }
+        
+        function addMessageToChat(messageData, isHistory) {
+            const chatMessages = document.getElementById("chat-messages");
+            const messageDiv = document.createElement('div');
+            
+            messageDiv.className = messageData.is_you ? 'message sent' : 'message received';
+            messageDiv.id = `message-${messageData.id}`;
+            
+            const date = new Date(messageData.timestamp);
+            const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">${messageData.message}</div>
+                <div class="message-meta">
+                    <span class="message-time">${formattedTime}</span>
+                    ${messageData.is_you ? '<span class="read-status">' + (messageData.is_read ? '✓✓' : '✓') + '</span>' : ''}
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            
+            if (!isHistory) {
+                scrollToBottom();
+            }
+        }
+        
+        function sendMessage() {
+            const messageInput = document.getElementById("message-input");
+            const message = messageInput.value.trim();
+            
+            if (message && chatSocket && chatSocket.readyState === WebSocket.OPEN && currentRoomId) {
+                // Send message via WebSocket
+                chatSocket.send(JSON.stringify({
+                    'type': 'chat_message',
+                    'message': message,
+                    'sender_type': 'service'
+                }));
+                
+                // Clear input
+                messageInput.value = '';
+            }
+        }
+        
+        function updateNotificationBadge() {
+            const badge = document.getElementById("chat-notification-badge");
+            const totalUnread = Object.values(unreadMessages).reduce((a, b) => a + b, 0);
+            
+            if (totalUnread > 0) {
+                badge.style.display = "flex";
+                badge.textContent = totalUnread;
+            } else {
+                badge.style.display = "none";
+            }
+        }
+        
+        function scrollToBottom() {
+            const chatMessages = document.getElementById("chat-messages");
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function acceptRequest(requestId) {
+            updateRequestStatus(requestId, 'accepted');
+        }
+        
+        function rejectRequest(requestId) {
+            updateRequestStatus(requestId, 'rejected');
+        }
+        
+        function updateRequestStatus(requestId, status) {
+            fetch(`/api/requests/${requestId}/update-status/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.error || 'Failed to update request status');
+                }
+            });
+        }
+        
+        function viewRequest(requestId) {
+            window.location.href = `/service/request/${requestId}/`;
+        }
+        
+        function openModal() {
+            document.getElementById("pendingModal").style.display = "flex";
+        }
+        
+        function closeModal() {
+            document.getElementById("pendingModal").style.display = "none";
+        }
+    </script>
 </body>
 </html>

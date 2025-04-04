@@ -1,100 +1,124 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="csrf-token" content="{{ csrf_token }}">
+{% extends 'base.html' %}
 
-    <title>Secure Chatbox</title>
-    <link rel="stylesheet" href="{% static 'css/chat.css' %}" />
-    <script>
-        const receiverId = "{{ service_center.id }}";  
-        const csrfToken = "{{ csrf_token }}";
+{% block extra_css %}
+<style>
+    #chat-container {
+        height: 500px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+    }
+    #message-input {
+        border-radius: 20px;
+    }
+</style>
+{% endblock %}
 
-        if (!receiverId) {
-            console.error("Receiver ID is missing. Please check the data.");
-            alert("Error: No valid service center found.");
-        }
-
-        function sendMessage() {
-            const messageInput = document.getElementById("message-input");
-            const message = messageInput.value.trim();
-
-            if (!message) return;
-
-            fetch("/chat/send_message/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "X-CSRFToken": csrfToken
-                },
-                body: `receiver_id=${receiverId}&message=${encodeURIComponent(message)}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    messageInput.value = ""; 
-                    loadMessages();
-                } else {
-                    console.error("Error:", data.message);
-                    alert("Error sending message: " + data.message);
-                }
-            })
-            .catch(error => {
-                console.error("Fetch error:", error);
-            });
-        }
-
-        function loadMessages() {
-            fetch(`/chat/get_messages/${receiverId}/`)
-            .then(response => {
-                if (!response.ok) throw new Error("Network error");
-                return response.json();
-            })
-            .then(data => {
-                const chatBox = document.getElementById("chat-messages");
-                chatBox.innerHTML = "";
-
-                if (data.messages.length === 0) {
-                    chatBox.innerHTML = "<p>No messages yet.</p>";
-                } else {
-                    data.messages.forEach(msg => {
-                        const messageClass = msg.sender === "{{ request.user.username }}" ? "sent" : "received";
-                        const messageDiv = document.createElement('div');
-                        messageDiv.classList.add('message', messageClass);
-                        messageDiv.innerHTML = `
-                            <strong>${msg.sender}:</strong> ${msg.message}
-                            <small>${msg.timestamp}</small>
-                        `;
-                        chatBox.appendChild(messageDiv);
-                    });
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
-            })
-            .catch(error => {
-                console.error("Fetch error:", error);
-            });
-        }
-
-        setInterval(loadMessages, 3000); 
-    </script>
-</head>
-<body>
+{% block content %}
+<div class="container">
+    <h2>Chat for Request: {{ service_request.subject }}</h2>
+    <p>With: {{ other_user.username }}</p>
+    
     <div id="chat-container">
-        <div id="chat-header">
-            <h3>Chat with {{ service_center.username }}</h3>
-        </div>
-        <div id="chat-messages"></div>
-        <div id="chat-input">
-            <input 
-                type="text"
-                id="message-input"
-                placeholder="Type a message..." 
-                onkeypress="if(event.keyCode==13) sendMessage();" 
-            />
-            <button onclick="sendMessage()">Send</button>
-        </div>
+        {% for message in messages %}
+            <div class="chat-message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                <strong>{{ message.sender.username }}</strong>
+                <p>{{ message.message }}</p>
+                <small>{{ message.timestamp }}</small>
+            </div>
+        {% endfor %}
     </div>
-</body>
-</html>
+    
+    <form id="chat-form" method="post">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="message-input" name="message" placeholder="Type your message..." required>
+            <button class="btn btn-primary" type="submit">Send</button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    // WebSocket connection
+    const chatSocket = new WebSocket(
+        'ws://' + window.location.host +
+        '/ws/chat/' + "{{ service_request.id }}" + '/'
+    );
+    
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const chatContainer = document.getElementById('chat-container');
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('chat-message');
+        
+        if (data.sender === '{{ request.user.username }}') {
+            messageDiv.classList.add('sent');
+        } else {
+            messageDiv.classList.add('received');
+        }
+        
+        messageDiv.innerHTML = `
+        <strong>${data.sender}</strong>
+        <p>${data.message}</p>
+        <small>${formatTimestamp(data.timestamp)}</small>
+    `;
+
+    // Add this formatting function
+    function formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        const options = { 
+            month: 'long', 
+            day: 'numeric', 
+            year: 'numeric',
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        };
+        return date.toLocaleString('en-US', options);
+    }
+        
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    };
+    
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    // Function to hide alert messages
+    function hideSystemAlerts() {
+        const alerts = document.querySelectorAll('.alert.alert-');
+        alerts.forEach(alert => {
+            alert.style.display = 'none';
+        });
+    }
+
+    // Run initially to hide any existing alerts
+    document.addEventListener('DOMContentLoaded', function() {
+        hideSystemAlerts();
+    });
+    
+    // Handle form submission
+    document.querySelector('#chat-form').onsubmit = function(e) {
+        e.preventDefault();
+        const messageInput = document.querySelector('#message-input');
+        const message = messageInput.value;
+        
+        chatSocket.send(JSON.stringify({
+            'message': message,
+            'sender_id': "{{ request.user.id }}"
+        }));
+        
+        messageInput.value = '';
+    };
+    
+    // Scroll to bottom of chat
+    document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+</script>
+{% endblock %}
+{% endblock %}
