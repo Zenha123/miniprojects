@@ -5,6 +5,10 @@ import re
 from django.core.exceptions import ValidationError
 from datetime import timedelta
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
+#from reg.models import *
+
+
 
 
 class CustomUserManager(BaseUserManager):
@@ -53,6 +57,9 @@ class ServiceCenter(models.Model):
     
     def __str__(self):
         return self.name
+    
+
+
 
 
 class OTP(models.Model):
@@ -66,4 +73,8 @@ class OTP(models.Model):
 
     def __str__(self):
         return f"OTP for {self.user.email}"
+    
+
+
+
 

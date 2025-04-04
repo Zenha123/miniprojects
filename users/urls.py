@@ -1,6 +1,7 @@
-from django.urls import path
+from django.urls import path,re_path
 from . import views
 from django.contrib.auth.views import LogoutView
+
 
 urlpatterns = [
     path('home/', views.home, name='home'),
@@ -21,4 +22,8 @@ urlpatterns = [
     path('active-repairs/', views.active_repairs_view, name='active_repairs'),
     path('request/<int:request_id>/', views.request_detail, name='request_detail'),
     path('update-status/<int:request_id>/', views.update_request_status, name='update_request_status'),
+    # path('repair/<int:repair_id>/review/', submit_review, name='submit_review'),
+    # path('repair/<int:repair_id>/view-review/', view_review, name='view_review'),
+    # re_path(r'^repair/(?P<repair_id>\d+)/review/$', submit_review, name='submit_review'),
+    # re_path(r'^repair/(?P<repair_id>\d+)/view-review/$', view_review, name='view_review')
 ]

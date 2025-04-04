@@ -48,7 +48,8 @@ INSTALLED_APPS = [
 WSGI_APPLICATION = 'reparohub.wsgi.application'
 ASGI_APPLICATION = 'reparohub.asgi.application'
 
-AUTH_USER_MODEL='users.customUser'
+# AUTH_USER_MODEL='users.customUser'
+AUTH_USER_MODEL = 'users.CustomUser'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',

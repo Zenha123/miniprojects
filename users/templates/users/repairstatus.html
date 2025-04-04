@@ -160,6 +160,17 @@
         </div>
     </div>
 </div>
+<td>
+    {% if repair.id and not repair.review %}
+    <a href="{% url 'submit_review' repair.id %}" class="btn-review">
+        Leave Review
+    </a>
+{% elif repair.review %}
+    <a href="{% url 'view_review' repair.id %}" class="btn-view-review">
+        View Review
+    </a>
+{% endif %}
+</td>
 
 <script>
     function toggleDropdown() {
@@ -199,6 +210,8 @@
     document.getElementById("logout-btn").addEventListener("click", showLogoutPopup);
     document.getElementById("logout-option").addEventListener("click", showLogoutPopup);
 </script>
+
+
 
 </body>
 </html>

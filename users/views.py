@@ -253,12 +253,15 @@ def cust_dash(request):
     return render(request, 'users/cust_dash.html', context)
     
 
+
+
+
+
 @login_required
 def repair_status(request):
     if request.user.user_type != 'Customer':
         return redirect('login')
     
-
     try:
         customer_profile = Customer.objects.get(user=request.user)
     except Customer.DoesNotExist:
@@ -279,7 +282,6 @@ def repair_status(request):
         'completed_repairs': completed_repairs,
     }
     return render(request, 'users/repairstatus.html', context)
-
 
 @login_required
 def servicedash(request):
@@ -335,7 +337,6 @@ def active_repairs_view(request):
     }
 
     return render(request, 'users/active_repairs.html', context)
-
 
 
 @login_required
@@ -398,5 +399,9 @@ def resend_otp(request):
 
 '''def repair_status(request):
     return render(request, 'users/repairstatus.html')'''
+
+
+
+
 
 
