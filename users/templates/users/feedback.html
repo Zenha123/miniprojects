@@ -1,12 +1,12 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repair Service Feedback</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>Repair Service Feedback - ReparoHub</title>
     <link rel="stylesheet" href="{% static 'css/feedback.css' %}">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="feedback-container">
@@ -14,36 +14,54 @@
         <div class="left-section">
             <h2>We value your feedback on our <br> <span>Repair Services!</span></h2>
             <p>Let us know how we did and help us improve.</p>
-            <img src="{% static 'images/reparo.jpg' %}" alt="Repair Service Illustration">
+            <img src="{% static 'images/reparo.jpg' %}" alt="ReparoHub Logo">
         </div>
 
         <!-- Right Section -->
-        <div class="right-section">
-            <form method="post" id="feedbackForm">
-                {% csrf_token %}
-                <label>Service Center Name:</label>
-                <input type="text" value="{{ service_center.name }}" readonly>
-
-                <label>Rate Our Service:</label>
-                <div class="star-container">
-                    <div class="star-rating">
-                        <span class="fa fa-star" onclick="rateService(1)" data-value="1"></span>
-                        <span class="fa fa-star" onclick="rateService(2)" data-value="2"></span>
-                        <span class="fa fa-star" onclick="rateService(3)" data-value="3"></span>
-                        <span class="fa fa-star" onclick="rateService(4)" data-value="4"></span>
-                        <span class="fa fa-star" onclick="rateService(5)" data-value="5"></span>
-                    </div>
-                    <input type="hidden" name="rating" id="ratingInput">
+        <form method="post" class="right-section">
+            {% csrf_token %}
+            <label>Service Center Name:</label>
+            <input type="text" value="{{ service_center.name }}" readonly>
+            
+            <label>Rate Our Service:</label>
+            <div class="star-container">
+                <div class="star-rating">
+                    <span class="fa fa-star" onclick="rateService(1)" data-value="1"></span>
+                    <span class="fa fa-star" onclick="rateService(2)" data-value="2"></span>
+                    <span class="fa fa-star" onclick="rateService(3)" data-value="3"></span>
+                    <span class="fa fa-star" onclick="rateService(4)" data-value="4"></span>
+                    <span class="fa fa-star" onclick="rateService(5)" data-value="5"></span>
+                    {{ form.rating }}
                 </div>
+            </div>
 
-                <label>Tell us why you gave this rating:</label>
-                <textarea name="feedback" placeholder="Your feedback..." required></textarea>
+            <label>Tell us why you gave this rating:</label>
+            {{ form.feedback }}
 
-                <button type="submit">Send Feedback</button>
-            </form>
-        </div>
+            <button type="submit">Send Feedback</button>
+        </form>
     </div>
 
-    <script src="{% static 'js/feedback.js' %}"></script>
+    <script>
+        function rateService(rating) {
+            let stars = document.querySelectorAll('.star-rating .fa-star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('selected');
+                } else {
+                    star.classList.remove('selected');
+                }
+            });
+            document.getElementById('id_rating').value = rating;
+        }
+
+        // Initialize with any existing rating
+        document.addEventListener('DOMContentLoaded', function() {
+            const initialRating = document.getElementById('id_rating').value;
+            if (initialRating) {
+                rateService(parseInt(initialRating));
+            }
+        });
+    </script>
 </body>
 </html>

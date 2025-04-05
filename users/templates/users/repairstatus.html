@@ -19,20 +19,11 @@
             
         </div>
         <ul class="nav-links">
-            <li><a href="cust_dash.html">Home</a></li>
-            <li><a href="repairstatus.html">Repair Status</a></li>
-            <li><a href="service-centers.html">Service Centers</a></li>
-            <li><a href="customer-support.html">Customer Support</a></li>
-            <li class="settings-dropdown">
-                <a href="#" id="settings-btn">Settings ▼</a>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Profile</a></li>
-                    <li><a href="#">Change Password</a></li>
-                    <li><a href="#" id="dark-mode-toggle">Dark Mode</a></li>
-                    <li><a href="#" id="logout-option">Logout</a></li>
-                </ul>
-            </li>
-            <li><a href="#" id="logout-btn">Logout</a></li>
+            <li><a href="{% url 'custdash' %}">Home</a></li>
+            <li><a href="{% url 'repairstatus' %}">Repair Status</a></li>
+            <li><a href="{% url 'showservicecenter' %}">Service Centers</a></li>
+            
+            <li><a href="{% url 'logout' %}">Logout</a></li>
         </ul>
         <div class="nav-toggle">
             <i class="fas fa-bars"></i>
@@ -160,18 +151,30 @@
         </div>
     </div>
 </div>
-<td>
-    {% if repair.id and not repair.review %}
-    <a href="{% url 'submit_review' repair.id %}" class="btn-review">
-        Leave Review
-    </a>
-{% elif repair.review %}
-    <a href="{% url 'view_review' repair.id %}" class="btn-view-review">
-        View Review
-    </a>
-{% endif %}
-</td>
-
+<!---{% for repair in completed_repairs %}
+    <tr>
+       
+        <td>
+            {% if repair.id %}  
+                {% if not repair.has_review %}
+                    <a href="{% url 'submit_review' repair.id %}" class="review-btn">
+                        Leave Review
+                    </a>
+                {% else %}
+                    <a href="{% url 'view_review' repair.id %}" class="view-review-btn">
+                        View Review
+                    </a>
+                {% endif %}
+            {% else %}
+                <span class="text-muted">N/A</span>
+            {% endif %}
+        </td>
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="7">No completed repairs found</td>
+    </tr>
+{% endfor %}--->
 <script>
     function toggleDropdown() {
         document.querySelector(".dropdown-content").classList.toggle("show");
@@ -203,7 +206,8 @@
     }
 
     function redirectToReview(repairId) {
-        window.location.href = `feedback.html?repair_id=${repairId}`;
+        /*window.location.href = `feedback.html?repair_id=${repairId}`;*/
+        window.location.href = `/submit-review/${repairId}/`;
     }
 
     // Add event listeners

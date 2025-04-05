@@ -78,3 +78,14 @@ class OTP(models.Model):
 
 
 
+###############
+class Review(models.Model):
+    repair_request = models.OneToOneField('reg.RepairRequest', on_delete=models.CASCADE, related_name='review')
+    service_center = models.ForeignKey('ServiceCenter', on_delete=models.CASCADE)
+    customer = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)])
+    feedback = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for {self.service_center.name} by {self.customer}"

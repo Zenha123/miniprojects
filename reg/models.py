@@ -19,11 +19,12 @@ class Product(models.Model):
 
 class Service(models.Model):
 
-        service = models.ForeignKey('users.ServiceCenter', on_delete=models.CASCADE)
-        service_catalog = models.CharField(max_length=1000,blank=True)
-        contact_no = models.CharField(max_length=10,blank=True,null=True)
+        service = models.ForeignKey(ServiceCenter, on_delete=models.CASCADE)
+        service_name = models.CharField(max_length=1000,blank=True)
+        
+        
         def __str__(self):
-            return self.service
+            return f"{self.service_name} ({self.service.name})"
 
 class RepairRequest(models.Model):
     STATUS_CHOICES = [
@@ -50,6 +51,14 @@ class RepairRequest(models.Model):
     contact_no = models.CharField(max_length=10,blank=True,null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES,default='pending')
     completed_date = models.DateTimeField(null=True, blank=True)
+
+
+
+
+    ###3#
+    @property
+    def has_review(self):
+        return hasattr(self, 'review')
 
     def __str__(self):
         return f"Repair Request for {self.product_name} at {self.service_center.name}"

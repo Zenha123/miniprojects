@@ -26,6 +26,16 @@ class OTPForm(forms.Form):
     otp=forms.CharField(max_length=6, widget=forms.TextInput(attrs={'class': 'otp-box'}))
 
 
+#######3##
+from .models import Review
 
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'feedback']
+        widgets = {
+            'rating': forms.HiddenInput(),
+            'feedback': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Your feedback...'}),
+        }
 
 
