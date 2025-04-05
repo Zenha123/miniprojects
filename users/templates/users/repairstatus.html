@@ -73,6 +73,7 @@
                 <th>Request Date</th>
                 <th>Expected Completion</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -95,6 +96,11 @@
                             {% endif %}">
                             {{ repair.status }}
                         </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'chat_user' repair.id %}" class="view-btn">
+                            <i class="fas fa-eye"></i> Chat
+                        </a>
                     </td>
             </tr>
             {% empty %}
