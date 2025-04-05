@@ -61,13 +61,6 @@
         <p>With: {{ other_user }}</p>
         
         <div id="chat-container">
-            {% for message in messages %}
-                <div class="chat-message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
-                    <strong>{{ message.sender.username }}</strong>
-                    <p>{{ message.message }}</p>
-                    <small>{{ message.timestamp|date:"F j, Y, g:i a" }}</small>
-                </div>
-            {% endfor %}
         </div>
         
         <form id="chat-form">
