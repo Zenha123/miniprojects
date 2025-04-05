@@ -64,6 +64,7 @@
                             <a href="{% url 'request_detail' request.id %}" class="view-btn">
                                 <i class="fas fa-eye"></i> View
                             </a>
+                            <button>chat</button>
                             {% if request.status == 'ready_for_pickup' %}
                             <form method="post" action="{% url 'update_request_status' request.id %}" class="inline-form">
                                 {% csrf_token %}
