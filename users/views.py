@@ -22,6 +22,15 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import render,redirect,get_object_or_404
 from reg.models import RepairRequest
 
+######
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+#from .models import RepairRequest, Review
+from .forms import ReviewForm
+from django.db.models import Q 
+
+
+
 
 User= get_user_model()
 @csrf_exempt
@@ -186,7 +195,7 @@ def verify_otp(request):
 
             # Log the user in
             login(request, user)
-            return redirect('product_reg')
+            return redirect('home')
 
         else:
             return render(request, 'users/verify_otp.html', {'error': 'Invalid OTP', 'message':message})
@@ -253,33 +262,92 @@ def cust_dash(request):
     return render(request, 'users/cust_dash.html', context)
     
 
-@login_required
-def repair_status(request):
-    if request.user.user_type != 'Customer':
-        return redirect('login')
+def show_service_centers(request):
+    service_centers = ServiceCenter.objects.all().order_by('name')
+
+    context = {
+        'service_centers': service_centers
+    }
+    return render(request, 'users/showing.html', context)
     
 
-    try:
-        customer_profile = Customer.objects.get(user=request.user)
-    except Customer.DoesNotExist:
-        customer_profile = None
+def service_center_detail(request, center_id):
+    service_center = get_object_or_404(ServiceCenter, user_id=center_id)
+    
+    # Get services provided by this center
+    services = Service.objects.filter(service=service_center)
+    
+    # Get reviews for this center
+    #reviews = Review.objects.filter(service_center=service_center)
+    
+    # Get service history for the current user (if logged in)
+    service_history = []
+    if request.user.is_authenticated:
+        service_history = RepairRequest.objects.filter(
+            customer=request.user,
+            service_center=service_center
+        ).order_by('-request_date')
+    
+    context = {
+        'service_center': service_center,
+        'services': services,
+        #'reviews': reviews,
+        'service_history': service_history
+    }
+    return render(request,'users/service-detail.html',context)
 
+
+# @login_required
+# def repair_status(request):
+#     if request.user.user_type != 'Customer':
+#         return redirect('login')
+    
+#     try:
+#         customer_profile = Customer.objects.get(user=request.user)
+#     except Customer.DoesNotExist:
+#         customer_profile = None
+
+#     active_repairs = RepairRequest.objects.filter(
+#         customer=request.user
+#     ).exclude(
+#         status__in=['completed', 'cancelled']
+#     )
+
+#     completed_repairs = RepairRequest.objects.filter(
+#         customer=request.user,
+#         status='completed'
+#     )
+#     context = {
+#         'active_repairs': active_repairs,
+#         'completed_repairs': completed_repairs,
+#     }
+#     return render(request, 'users/repairstatus.html', context)
+
+######
+def repair_status(request):
+    # Redirect non-customers
+    if not hasattr(request.user, 'user_type') or request.user.user_type != 'Customer':
+        return redirect('login')
+    
+    # Get active repairs (excluding completed/cancelled)
     active_repairs = RepairRequest.objects.filter(
         customer=request.user
     ).exclude(
-        status__in=['completed', 'cancelled']
+        status__in=['Completed', 'Cancelled', 'completed', 'cancelled']  # Handle both cases
     )
 
+    # Get completed repairs (case-insensitive)
     completed_repairs = RepairRequest.objects.filter(
-        customer=request.user,
-        status='completed'
+        customer=request.user
+    ).filter(
+        Q(status='Completed') | Q(status='completed')
     )
+
     context = {
         'active_repairs': active_repairs,
         'completed_repairs': completed_repairs,
     }
     return render(request, 'users/repairstatus.html', context)
-
 
 @login_required
 def servicedash(request):
@@ -335,7 +403,6 @@ def active_repairs_view(request):
     }
 
     return render(request, 'users/active_repairs.html', context)
-
 
 
 @login_required
@@ -396,7 +463,44 @@ def resend_otp(request):
     return redirect('verify_otp')
 
 
-'''def repair_status(request):
-    return render(request, 'users/repairstatus.html')'''
+############
+
+@login_required
+def submit_review(request, repair_id):
+    repair = get_object_or_404(RepairRequest, id=repair_id, customer=request.user)
+    
+    # Check if review already exists
+    if hasattr(repair, 'review'):
+        return redirect('view_review', repair_id=repair.id)
+    
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.repair_request = repair
+            review.service_center = repair.service_center
+            review.customer = request.user
+            review.save()
+            return redirect('repairstatus')
+    else:
+        form = ReviewForm()
+    
+    return render(request, 'users/feedback.html', {
+        'form': form,
+        'repair': repair,
+        'service_center': repair.service_center,
+    })
+
+@login_required
+def view_review(request, repair_id):
+    repair = get_object_or_404(RepairRequest, id=repair_id, customer=request.user)
+    review = get_object_or_404(Review, repair_request=repair)
+    return render(request, 'users/review.html', {
+        'review': review,
+        'repair': repair,
+    })
+
+
+
 
 

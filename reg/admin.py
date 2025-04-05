@@ -19,5 +19,4 @@ class RepairRequestAdmin(admin.ModelAdmin):
 
 admin.site.register(RepairRequest, RepairRequestAdmin)
 
-
 #admin.site.register(RepairRequest)

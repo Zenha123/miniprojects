@@ -1,59 +1,42 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import ChatRoom, ChatMessage
+from .models import ChatMessage
 from users.models import ServiceCenter
+from reg.models import RepairRequest
 from django.contrib.auth import get_user_model
+from .forms import *
 
 User = get_user_model()
 
 @login_required
-def service_chat(request, customer_id):
-    customer = get_object_or_404(User, id=customer_id)
-    if not hasattr(request.user, 'servicecenter'):
-        return JsonResponse({'error': 'Access denied'}, status=403)
+def chat(request, request_id):
+    service_request = get_object_or_404(RepairRequest, id=request_id)
     
-    room, created = ChatRoom.objects.get_or_create(
-        customer=customer,
-        service_center=request.user
-    )
+    # Check if user is part of this request
+    if request.user not in [service_request.customer, service_request.service_center]:
+        return redirect('custdash')
     
-    # Mark all messages as read when opening chat
-    ChatMessage.objects.filter(room=room, sender=customer).update(is_read=True)
+    # Only allow chat if request is accepted
+    if service_request.status != 'accepted':
+        return redirect('custdash')
     
-    return render(request, 'chat/service_chat.html', {
-        'room': room,
-        'customer': customer,
+    messages = ChatMessage.objects.filter(request=service_request).order_by('timestamp')
+    
+    if request.method == 'POST':
+        form = ChatMessageForm(request.POST)
+        if form.is_valid():
+            chat_message = form.save(commit=False)
+            chat_message.request = service_request
+            chat_message.sender = request.user
+            chat_message.save()
+            return redirect('chat', request_id=request_id)
+    else:
+        form = ChatMessageForm()
+    
+    return render(request, 'chat.html', {
+        'service_request': service_request,
+        'messages': messages,
+        'form': form,
+        'other_user': service_request.service_center if request.user == service_request.customer else service_request.customer
     })
-
-@login_required
-def get_message_history(request, room_id):
-    room = get_object_or_404(ChatRoom, id=room_id)
-    if request.user not in [room.customer, room.service_center]:
-        return JsonResponse({'error': 'Access denied'}, status=403)
-    
-    messages = ChatMessage.objects.filter(room=room).order_by('timestamp')
-    message_history = []
-    for msg in messages:
-        message_history.append({
-            'id': msg.id,
-            'sender': msg.sender.username,
-            'message': msg.get_decrypted_message(),
-            'timestamp': msg.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-            'is_read': msg.is_read,
-            'is_you': msg.sender == request.user,
-        })
-    
-    return JsonResponse({'messages': message_history})
-
-@login_required
-def mark_message_read(request, message_id):
-    message = get_object_or_404(ChatMessage, id=message_id)
-    if message.sender == request.user:
-        return JsonResponse({'error': 'Cannot mark your own messages as read'}, status=400)
-    if request.user not in [message.room.customer, message.room.service_center]:
-        return JsonResponse({'error': 'Access denied'}, status=403)
-    
-    message.is_read = True
-    message.save()
-    return JsonResponse({'success': True})
