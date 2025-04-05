@@ -7,7 +7,7 @@ from reg.models import *
 from users.models import *
 
 class ChatMessage(models.Model):
-    request = models.ForeignKey(RepairRequest, on_delete=models.CASCADE, related_name='messages')
+    request_id = models.ForeignKey(RepairRequest, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)

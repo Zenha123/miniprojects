@@ -4,6 +4,7 @@ from .models import ChatMessage
 import json
 from asgiref.sync import sync_to_async
 from django.core.exceptions import ObjectDoesNotExist
+from reg.models import RepairRequest
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -51,14 +52,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @sync_to_async
     def get_service_request(self):
-        return RepairRequest.objects.select_related('customer', 'agent').get(
+        return RepairRequest.objects.select_related('customer', 'service_center').get(
             id=self.request_id,
             status='accepted'
         )
 
     @sync_to_async
     def user_has_permission(self):
-        return self.user.id in [self.service_request.customer.id, self.service_request.agent.id]
+        return self.user.id in [self.service_request.customer.id, self.service_request.service_center.user.id]
 
     async def send_existing_messages(self):
         messages = await self.get_messages()
@@ -66,8 +67,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send_message_to_client({
                 'type': 'chat_message',
                 'message': message.message,
-                'sender': message.sender.username,
+                'sender': message.sender.email,
                 'sender_id': message.sender.id,
+                'is_own': message.sender.id == self.user.id,  # Add this line
                 'timestamp': message.timestamp.isoformat(),
                 'db_id': str(message.id)
             })
@@ -88,7 +90,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.broadcast_message({
                 'type': 'chat_message',
                 'message': message.message,
-                'sender': message.sender.username,
+                'sender': message.sender.email,
                 'sender_id': message.sender.id,
                 'timestamp': message.timestamp.isoformat(),
                 'db_id': str(message.id)
@@ -100,7 +102,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @sync_to_async
     def save_message(self, message_content):
         return ChatMessage.objects.create(
-            request_id=self.request_id,
+            request_id=RepairRequest.objects.get(id=self.request_id),
             sender=self.user,
             message=message_content
         )
@@ -121,6 +123,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         })
 
     async def chat_message(self, event):
+        event['is_own'] = event['sender_id'] == self.user.id
         await self.send_message_to_client(event)
 
     async def disconnect(self, close_code):

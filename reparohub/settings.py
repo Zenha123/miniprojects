@@ -51,12 +51,9 @@ ASGI_APPLICATION = 'reparohub.asgi.application'
 # AUTH_USER_MODEL='users.customUser'
 AUTH_USER_MODEL = 'users.CustomUser'
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
 }
 
 
