@@ -5,11 +5,14 @@ from users.models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from users.models import*
+##
+from django.utils import timezone
 
 
 from django.conf import settings
 import re
 from django.contrib import messages
+from datetime import datetime
 
 
 # Initialize Google NLP client (make sure GOOGLE_APPLICATION_CREDENTIALS is set in settings)
@@ -60,69 +63,78 @@ from django.contrib import messages
 
 
 
-"""def product_reg(request):
-    if request.method == "POST":
-        product_name = request.POST.get("product_name")
-        model_number = request.POST.get("model_number")
-        purchase_date = request.POST.get("purchase_date")
-        warranty_status = request.POST.get("warranty_period")
-
-        if not (product_name and model_number and purchase_date and warranty_status):
-            messages.error(request, "All fields are required.")
-            return redirect("product_reg")
-
-        product = Product.objects.create(
-            user=request.user,
-            customer=customer,
-            product_name=product_name,
-            model_number=model_number,
-            purchase_date=purchase_date,
-            warranty_status=warranty_status
-        )
-
-        messages.success(request, "Product registered successfully!")
-        return redirect("dashboard")
-    return render(request, 'productreg.html')"""
 
 
+
+# def product_reg(request):
+#     if request.method == "POST":
+#         product_name = request.POST.get("product_name")
+#         model_number = request.POST.get("model_number")
+#         purchase_date = request.POST.get("purchase_date")
+#         warranty_status = request.POST.get("warranty_period")
+
+#         if not (product_name and model_number and purchase_date and warranty_status):
+#             messages.error(request, "All fields are required.")
+#             return redirect("product_reg")
+
+#         # ✅ Get the customer instance
+#         try:
+#             customer = Customer.objects.get(user=request.user)
+#         except Customer.DoesNotExist:
+#             messages.error(request, "Customer profile not found.")
+#             return redirect("product_reg")
+
+#         # ✅ Create the product
+#         Product.objects.create(
+#             customer=customer,  # Correctly pass Customer instance
+#             product_name=product_name,
+#             model_number=model_number,
+#             purchase_date=purchase_date,
+#             warranty_status=warranty_status
+#         )
+
+#         messages.success(request, "Product registered successfully!")
+#         return redirect("custdash")
+
+#     return render(request, "productreg.html")
+
+####warrenty###
 
 def product_reg(request):
     if request.method == "POST":
         product_name = request.POST.get("product_name")
         model_number = request.POST.get("model_number")
         purchase_date = request.POST.get("purchase_date")
-        warranty_status = request.POST.get("warranty_period")
+        warranty_end_date = request.POST.get("warranty_end_date")  # Optional field
 
-        if not (product_name and model_number and purchase_date and warranty_status):
-            messages.error(request, "All fields are required.")
+        # Validate required fields
+        if not (product_name and model_number and purchase_date):
+            messages.error(request, "Product name, model and purchase date are required")
             return redirect("product_reg")
 
-        # ✅ Get the customer instance
         try:
             customer = Customer.objects.get(user=request.user)
+            
+            # Create product with optional warranty
+            Product.objects.create(
+                customer=customer,
+                product_name=product_name,
+                model_number=model_number,
+                purchase_date=purchase_date,
+                warranty_end_date=warranty_end_date if warranty_end_date else None
+            )
+            
+            messages.success(request, "Product registered successfully!")
+            return redirect("custdash")
+            
         except Customer.DoesNotExist:
-            messages.error(request, "Customer profile not found.")
-            return redirect("product_reg")
-
-        # ✅ Create the product
-        Product.objects.create(
-            customer=customer,  # Correctly pass Customer instance
-            product_name=product_name,
-            model_number=model_number,
-            purchase_date=purchase_date,
-            warranty_status=warranty_status
-        )
-
-        messages.success(request, "Product registered successfully!")
-        return redirect("custdash")
-
+            messages.error(request, "Customer profile not found")
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+    
     return render(request, "productreg.html")
 
 
-
-"""def user_dashboard(request):
-    products = Product.objects.filter(user=request.user)  # Get products of logged-in user
-    return render(request, "product/user-dashboard.html", {"products": products})"""
 
 @login_required
 def user_dashboard(request):

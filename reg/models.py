@@ -1,21 +1,68 @@
 from django.db import models
 from users.models import *
-#from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+###
+from datetime import timedelta
+from django.core.mail import send_mail
+from django.conf import settings
 
+# class Product(models.Model):
+#     customer = models.ForeignKey('users.Customer', on_delete=models.CASCADE)
+#     product_name = models.CharField(max_length=255)
+#     model_number = models.CharField(max_length=100)
+#     purchase_date = models.DateField()
+#     #warranty_status = models.IntegerField(help_text="Warranty period in months")
+#     warranty_status = models.IntegerField(
+#         null=True,  # Make it nullable
+#         blank=True,  # Allow blank in forms
+#         help_text="Warranty period in months"
+#     )
+#     def __str__(self):
+#         return self.product_name
+        
 
-
+#warrenty###3
 class Product(models.Model):
     customer = models.ForeignKey('users.Customer', on_delete=models.CASCADE)
     product_name = models.CharField(max_length=255)
     model_number = models.CharField(max_length=100)
     purchase_date = models.DateField()
-    warranty_status = models.IntegerField(help_text="Warranty period in months")
+    warranty_end_date = models.DateField(null=True, blank=True)  # Optional warranty
+    notified = models.BooleanField(default=False)  # Track if notified
+    
     def __str__(self):
         return self.product_name
-        
+    
+    def check_warranty(self):
+        """Check if warranty is about to expire"""
+        if self.warranty_end_date and not self.notified:
+            one_day_before = self.warranty_end_date - timedelta(days=1)
+            if timezone.now().date() >= one_day_before:
+                self.send_notification()
+                self.notified = True
+                self.save()
+    
+    def send_notification(self):
+        """Send warranty expiration email"""
+        send_mail(
+            subject=f"⚠️ Warranty Expiring: {self.product_name}",
+            message=f"""Dear Customer,
 
+Your {self.product_name} (Model: {self.model_number}) 
+warranty expires on {self.warranty_end_date}.
+
+Please consider any final repairs.
+
+Thank you,
+ReparoHub Team""",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[self.customer.user.email],
+        )
+
+
+
+        
 
 class Service(models.Model):
 

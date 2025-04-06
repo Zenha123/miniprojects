@@ -141,7 +141,13 @@
                                 Leave Review
                             </button>
                             {% else %}
-                            <button class="view-review-btn" onclick="redirectToReview('{{ repair.id }}')">
+                            <button class="view-review-btn" onclick="redirectToReview('{{ repair.id }}')" style="background: #cca702;
+                            color: white;
+                            border: none;
+                            padding: 8px 12px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            transition: 0.3s ease-in-out;">
                                 View Review
                             </button>
                             {% endif %}

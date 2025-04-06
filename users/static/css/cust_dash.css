@@ -507,7 +507,24 @@ tr:hover {
     cursor: pointer;
     transition: 0.3s ease-in-out;
 }
-
+/*.view-review-btn {
+    background: #0C2D57;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}*/
+.view-review-btn{
+    background: #0C2D57;
+    color: rgb(177, 20, 20);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
 .review-btn:hover {
     background: #2A3D52;
 }
@@ -571,3 +588,5 @@ tr:hover {
     color: white !important;
     font-weight: bold;
 } 
+
+

@@ -227,17 +227,78 @@ def home(request):
 
 
 
+# @login_required
+# def cust_dash(request):
+#     if request.user.user_type != 'Customer':
+#         return redirect('login')
+    
+
+#     try:
+#         customer_profile = Customer.objects.get(user=request.user)
+#     except Customer.DoesNotExist:
+#         customer_profile = None
+
+#     active_repairs = RepairRequest.objects.filter(
+#         customer=request.user
+#     ).exclude(
+#         status__in=['completed', 'cancelled']
+#     ).count()
+
+#     completed_repairs = RepairRequest.objects.filter(
+#         customer=request.user,
+#         status='completed'
+#     ).count()
+
+#     customer_products = Product.objects.filter(customer__user=request.user)
+
+
+#     context = {
+#         'customer': request.user,
+#         'customer_profile': customer_profile,
+#         'active_repairs': active_repairs,
+#         'completed_repairs': completed_repairs,
+#         'customer_products': customer_products,
+#     }
+#     return render(request, 'users/cust_dash.html', context)
+
+    ###warrenty##
+
 @login_required
 def cust_dash(request):
     if request.user.user_type != 'Customer':
         return redirect('login')
     
-
     try:
         customer_profile = Customer.objects.get(user=request.user)
+        
+        # Check for expiring warranties (NEW CODE)
+        for product in Product.objects.filter(customer=customer_profile):
+            if product.warranty_end_date and not product.notified:
+                one_day_before = product.warranty_end_date - timedelta(days=1)
+                if timezone.now().date() >= one_day_before:
+                    # Send notification email
+                    send_mail(
+                        subject=f"⚠️ Warranty Expiring: {product.product_name}",
+                        message=f"""Dear Customer,
+
+Your {product.product_name} (Model: {product.model_number}) 
+warranty expires on {product.warranty_end_date}.
+
+Please consider any final repairs.
+
+Thank you,
+ReparoHub Team""",
+                        from_email=settings.EMAIL_HOST_USER,
+                        recipient_list=[request.user.email],
+                    )
+                    # Mark as notified
+                    product.notified = True
+                    product.save()
+                    
     except Customer.DoesNotExist:
         customer_profile = None
 
+    # Original dashboard metrics
     active_repairs = RepairRequest.objects.filter(
         customer=request.user
     ).exclude(
@@ -251,7 +312,6 @@ def cust_dash(request):
 
     customer_products = Product.objects.filter(customer__user=request.user)
 
-
     context = {
         'customer': request.user,
         'customer_profile': customer_profile,
@@ -260,7 +320,10 @@ def cust_dash(request):
         'customer_products': customer_products,
     }
     return render(request, 'users/cust_dash.html', context)
-    
+
+
+
+
 
 def show_service_centers(request):
     service_centers = ServiceCenter.objects.all().order_by('name')
@@ -368,25 +431,25 @@ def servicedash(request):
     
     return render(request, 'users/service-dash.html',context)
 
-@login_required
-def update_request_status(request, request_id):
-    repair_request = get_object_or_404(RepairRequest, id=request_id)
+# @login_required
+# def update_request_status(request, request_id):
+#     repair_request = get_object_or_404(RepairRequest, id=request_id)
 
-    if repair_request.service_center != request.user.servicecenter:
-        messages.error(request,"you are not authorized to update this request.")
-        return redirect('sdash')
+#     if repair_request.service_center != request.user.servicecenter:
+#         messages.error(request,"you are not authorized to update this request.")
+#         return redirect('sdash')
     
-    if request.method == 'POST':
-        new_status = request.POST.get('status')
-        if new_status in dict(RepairRequest.STATUS_CHOICES).keys():
-            repair_request.status = new_status
-            repair_request.save()
-            messages.success(request,f"Request status updated to {new_status}.")
+#     if request.method == 'POST':
+#         new_status = request.POST.get('status')
+#         if new_status in dict(RepairRequest.STATUS_CHOICES).keys():
+#             repair_request.status = new_status
+#             repair_request.save()
+#             messages.success(request,f"Request status updated to {new_status}.")
 
-        else:
-            messages.error(request,"Invalid status.")
+#         else:
+#             messages.error(request,"Invalid status.")
 
-    return redirect('sdash')
+#     return redirect('sdash')
 
 
 def active_repairs_view(request):
@@ -502,5 +565,62 @@ def view_review(request, repair_id):
 
 
 
+####mail###
+def send_completion_email(customer_email, service_center_name, product_name):
+    subject = f"Your {product_name} repair is completed!"
+    message = f"""
+    Hello,
+
+    We're happy to inform you that your {product_name} repair at {service_center_name} 
+    has been completed successfully!
+
+    You can now collect your device from the service center.
+
+    Thank you for choosing {service_center_name}.
+
+    Best regards,
+    ReparoHub Team
+    """
+    
+    send_mail(
+        subject,
+        message,
+        settings.EMAIL_HOST_USER,
+        [customer_email],
+        fail_silently=False,
+    )
+@login_required
+def update_request_status(request, request_id):
+    repair_request = get_object_or_404(RepairRequest, id=request_id)
+
+    if repair_request.service_center != request.user.servicecenter:
+        messages.error(request, "You are not authorized to update this request.")
+        return redirect('sdash')
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(RepairRequest.STATUS_CHOICES).keys():
+            repair_request.status = new_status
+            
+            # Set completed date if status is 'completed'
+            if new_status.lower() == 'completed':
+                repair_request.completed_date = timezone.now()
+                
+            repair_request.save()
+            
+            # Send email only when status is changed to 'completed'
+            if new_status.lower() == 'completed':
+                send_completion_email(
+                    customer_email=repair_request.customer.email,
+                    service_center_name=repair_request.service_center.name,
+                    product_name=repair_request.product_name
+                )
+                messages.success(request, "Status updated to completed and customer notified!")
+            else:
+                messages.success(request, f"Status updated to {new_status}.")
+        else:
+            messages.error(request, "Invalid status.")
+
+    return redirect('sdash')
 
 
