@@ -13,16 +13,15 @@
 
   <nav class="navbar">
     <div class="nav-logo">
-      <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/>
-       
+        <img src="{% static 'images/reparo.jpg'%}" alt="ReparoHub Logo">
+        
     </div>
     <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="repair-status.html">Repair Status</a></li>
-        <li><a href="service-centers.html">Service Centers</a></li>
-        <li><a href="customer-support.html">Customer Support</a></li>
-        <li><a href="settings.html">Settings</a></li>
-        <li><a href="#" id="logout-btn">Logout</a></li>
+        <li><a href="{% url 'custdash' %}">Home</a></li>
+        <li><a href="{% url 'repairstatus' %}">Repair Status</a></li>
+        <li><a href="{% url 'showservicecenter' %}">Service Centers</a></li>
+        
+        <li><a href="{% url 'logout' %}">Logout</a></li>
     </ul>
     <div class="nav-toggle">
         <i class="fas fa-bars"></i>
@@ -65,11 +64,11 @@
           </div>
           <div class="form-group">
             <label for="model_number">Model Number</label>
-            <input type="text" id="model_number" name="model_number" placeholder="Enter Model Number" required/>
+            <input type="text" id="model_number" name="model_number" placeholder="Enter Model Number" />
           </div>
           <div class="form-group">
             <label for="purchase_date">Purchase Date</label>
-            <input type="date" id="purchase_date" name="purchase_date" required/>
+            <input type="date" id="purchase_date" name="purchase_date"/>
           </div>
           <!--<div class="form-group">
             <label for="warranty_period">Warranty Status (months)</label>

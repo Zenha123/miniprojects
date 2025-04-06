@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPAROHUB | My Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/services.css' %}">
+    <style>
+        /* Additional inline styles for the add button */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .add-btn {
+            background-color: #4361ee;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .add-btn:hover {
+            background-color: #3a56d4;
+            transform: translateY(-2px);
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">  <img src="{% static 'images/imager.jpg' %}" alt="Logo" style="height: 50px;"/></div>
+        <ul class="nav-links">
+            <li><a href="{% url 'sdash' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="{% url 'active_repairs' %}">Active Repairs</a></li>
+            <li><a href="{% url 'complete' %}">Completed Works</a></li>
+            <li><a href="{% url 'reg:service_list' %}">ur services</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="content-header">
+            <h2>Your Services</h2>
+            <div class="header-actions">
+                <a href="{% url 'reg:service_register' %}" class="add-btn">
+                    <i class="fas fa-plus"></i> Add Service
+                </a>
+            </div>
+        </div>
+        
+        <div class="services-container">
+            {% if services %}
+            <div class="services-grid">
+                {% for service in services %}
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <h3>{{ service.service_name }}</h3>
+                    <div class="service-meta">
+                        <span><i class="fas fa-calendar-alt"></i> Added: {{ service.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="service-actions">
+                        <a href="{% url 'reg:delete_service' service.id %}" class="delete-btn"  onclick="return confirm('Are you sure you want to delete this service?')"><i class="fas fa-trash"></i> Delete</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <h3>No Services Registered Yet</h3>
+                <p>You haven't added any services yet. Get started by adding your first service.</p>
+                <a href="{% url 'reg:service_register' %}" class="add-service-btn">
+                    <i class="fas fa-plus"></i> Add Service
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteForms = document.querySelectorAll('.delete-form');
+            
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Are you sure you want to delete this service?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+        </script>
+</body>
+</html>

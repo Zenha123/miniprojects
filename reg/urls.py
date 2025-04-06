@@ -11,4 +11,7 @@ urlpatterns = [
     path('servicereg/', service_reg, name='service_register'),
     path('repairreq/', repair_req, name='repair_request'),
     path('fetch_service_centers/', fetch_service_centers, name='fetch_service_centers'),
+
+    path('services/', services_list, name='service_list'),
+    path('delete-service/<int:service_id>/', delete_service, name='delete_service'),
 ]

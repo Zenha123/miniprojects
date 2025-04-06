@@ -9,12 +9,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+
+
     <div class="feedback-container">
         <!-- Left Section -->
         <div class="left-section">
             <h2>Your Feedback <br> <span>Submitted!</span></h2>
             <p>Thank you for helping us improve our services.</p>
-            <img src="{% static 'images/reparo.jpg' %}" alt="ReparoHub Logo">
+            <button onclick="gohome()">Go Back Home</button>
         </div>
 
         <!-- Right Section -->
@@ -37,5 +39,12 @@
             <!--<button onclick="window.location.href='{% url 'repairstatus' %}'">Back to Status</button> --->
         </div>
     </div>
+
+    <script>
+        function gohome(){
+            window.location.href = "{% url 'custdash' %}";
+        }
+      
+    </script>
 </body>
 </html>

@@ -341,7 +341,7 @@ def service_center_detail(request, center_id):
     services = Service.objects.filter(service=service_center)
     
     # Get reviews for this center
-    #reviews = Review.objects.filter(service_center=service_center)
+    reviews = Review.objects.filter(service_center=service_center)
     
     # Get service history for the current user (if logged in)
     service_history = []
@@ -354,7 +354,7 @@ def service_center_detail(request, center_id):
     context = {
         'service_center': service_center,
         'services': services,
-        #'reviews': reviews,
+        'reviews': reviews,
         'service_history': service_history
     }
     return render(request,'users/service-detail.html',context)

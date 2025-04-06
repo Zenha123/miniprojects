@@ -11,7 +11,6 @@ from django.utils import timezone
 
 from django.conf import settings
 import re
-from django.contrib import messages
 from datetime import datetime
 
 
@@ -108,7 +107,7 @@ def product_reg(request):
         warranty_end_date = request.POST.get("warranty_end_date")  # Optional field
 
         # Validate required fields
-        if not (product_name and model_number and purchase_date):
+        if not (product_name):
             messages.error(request, "Product name, model and purchase date are required")
             return redirect("product_reg")
 
@@ -120,7 +119,7 @@ def product_reg(request):
                 customer=customer,
                 product_name=product_name,
                 model_number=model_number,
-                purchase_date=purchase_date,
+                purchase_date=purchase_date if purchase_date else None,
                 warranty_end_date=warranty_end_date if warranty_end_date else None
             )
             
@@ -158,11 +157,7 @@ def service_reg(request):
 
     if request.method == "POST":
         service_name = request.POST.get("service_name")
-        contact_no = request.POST.get("contact_no")
         
-        if contact_no and len(contact_no) != 10:
-            messages.error(request, "Contact number must be 10 digits.")
-            return redirect('service_register')
 
         if not (service_name):
             messages.error(request, " service is  required.")
@@ -174,15 +169,51 @@ def service_reg(request):
             Service.objects.create(
                 service=service_center,
                 service_name=service_name,
-                contact_no=contact_no,
             )
-            messages.success(request, "Service details added successfully!")
             return redirect('service-center-dashboard')  # Redirect to dashboard or confirmation page
         except Exception as e:
             messages.error(request, f"Error saving service details: {str(e)}")
 
 
     return render(request, 'servicereg.html', {'service_center': service_center})
+
+
+@login_required
+def delete_service(request, service_id):
+    try:
+        # Get the service or return 404
+        service = get_object_or_404(Service, id=service_id)
+        
+        if not hasattr(request.user, 'servicecenter'):
+            messages.error(request, "You don't have a service center associated with your account")
+            return redirect('reg:service_list')
+            
+        if service.service != request.user.servicecenter:
+            messages.error(request, "You don't have permission to delete this service")
+            return redirect('reg:service_list')
+        
+        logger.info(f"Deleting service with ID: {service.id}")
+        service.delete()
+        messages.success(request, "Service deleted successfully")
+        
+    except Exception as e:
+        logger.error(f"Error deleting service: {str(e)}")
+        messages.error(request, f"Error deleting service: {str(e)}")
+    
+    return redirect('reg:service_list')
+
+
+@login_required
+def services_list(request):
+
+    # Get services for the current user's service center
+    services = Service.objects.filter(service=request.user.servicecenter)
+    
+    context = {
+        'services': services,
+    }
+    return render(request, 'services.html', context)
+
 
 
 """@login_required(login_url="/admin/")
@@ -226,25 +257,26 @@ def repair_req(request):
     if request.method == "POST":
         product_name = request.POST.get("product_name")
         
-     
+
         issue_description = request.POST.get("issue_description", "")
         
         # Detect fake descriptions
     #    # is_fake, reasons = detect_fake_description(issue_description)
     #     if is_fake:
-    #         messages.error(request, 
+    #         messages.error(request,
     #             f"Please provide a valid repair description. Issues found: {', '.join(set(reasons))}"
     #         )
     #         return redirect("repair_request")
         
         address = request.POST.get("address")
+        contact_no = request.POST.get("contact_no")
         preferred_location = request.POST.get("preferred_location")
         service_center = request.POST.get("service_center")
         image = request.FILES.get("image")
 
-        if not (product_name and issue_description and address):
+        if not (product_name and issue_description and address and contact_no):
             messages.error(request, "All fields are required.")
-            return redirect("repair")
+            return redirect("repair_request")
 
         # ✅ Get the customer instance
         try:
@@ -267,6 +299,7 @@ def repair_req(request):
             product_name=product_name,
             issue_description=issue_description,
             address=address,
+            contact_no = contact_no,
             preferred_location=preferred_location,
             service_center=service_center,
             image=image

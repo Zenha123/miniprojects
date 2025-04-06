@@ -26,8 +26,8 @@ from django.conf import settings
 class Product(models.Model):
     customer = models.ForeignKey('users.Customer', on_delete=models.CASCADE)
     product_name = models.CharField(max_length=255)
-    model_number = models.CharField(max_length=100)
-    purchase_date = models.DateField()
+    model_number = models.CharField(max_length=100,null=True, blank=True)
+    purchase_date = models.DateField(null=True,blank=True)
     warranty_end_date = models.DateField(null=True, blank=True)  # Optional warranty
     notified = models.BooleanField(default=False)  # Track if notified
     
@@ -92,12 +92,16 @@ class RepairRequest(models.Model):
     service_center = models.ForeignKey('users.ServiceCenter', on_delete=models.CASCADE)
     request_date = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to="repair_images/", blank=True, null=True)
-    contact_no = models.CharField(max_length=10,blank=True,null=True)
+    contact_no = models.PositiveIntegerField(max_length=10,blank=True,null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES,default='pending')
     completed_date = models.DateTimeField(null=True, blank=True)
-
-
-
+    contact_no = models.CharField(
+        max_length=15,  # Increased length for international numbers
+        blank=True,
+        null=True,
+        verbose_name="Contact Phone Number",
+        help_text="Format: +9999999999 (up to 15 digits)"
+    )
 
     ###3#
     @property

@@ -309,6 +309,7 @@
             <li><a href="{% url 'sdash' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
             <li><a href="{% url 'active_repairs' %}">Active Repairs</a></li>
             <li><a href="{% url 'complete' %}">Completed Works</a></li>
+            <li><a href="{% url 'reg:service_list' %}">ur services</a></li>
             <li><a href="{% url 'logout' %}">Logout</a></li>
         </ul>
     </nav>
@@ -367,7 +368,7 @@
                     <h3><i class="fas fa-user"></i> Customer Details</h3>
                     <p><strong>Name:</strong> {{ repair_request.customer.customer.name|default:"Not Provided"}}</p>
                     <p><strong>Email:</strong> {{ repair_request.customer.email }}</p>
-                    <p><strong>Phone:</strong> {{ repair_request.contact_no|default:"Not provided" }}</p>
+                    <p><strong>Phone:</strong> {{ repair_request.contact_no }}</p>
                 </div>
 
                 <div class="detail-card">

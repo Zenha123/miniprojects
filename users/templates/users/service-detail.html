@@ -115,19 +115,13 @@
               </div>
               <span class="review-date">{{ review.created_at|date:"M d, Y" }}</span>
             </div>
-            <p class="review-text">{{ review.comment }}</p>
+            <p class="review-text">{{ review.feedback }}</p>
           </div>
           {% endfor %}
         {% else %}
           <p>No reviews yet. Be the first to review!</p>
         {% endif %}
 
-        <!-- Add Review Button (for logged in users) -->
-        {% if user.is_authenticated %}
-        <button class="add-review-btn" onclick="showReviewForm()">
-          <i class="fas fa-plus"></i> Add Your Review
-        </button>
-        {% endif %}
       </div>
       <button class="go-back-btn"><a href="{% url 'showservicecenter' %}">Go Back</a></button>
     </div>
