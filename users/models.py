@@ -5,14 +5,16 @@ import re
 from django.core.exceptions import ValidationError
 from datetime import timedelta
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
+#from reg.models import *
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self,email,password=None,**extra_fields):
+    def create_user(self, email, password=None, **extra_fields):
         if not email:
-            raise ValueError("Email is required")
+            raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
-        user = self.model(email=email,**extra_fields)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -21,7 +23,6 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
-
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -53,6 +54,9 @@ class ServiceCenter(models.Model):
     
     def __str__(self):
         return self.name
+    
+
+
 
 
 class OTP(models.Model):
@@ -66,4 +70,19 @@ class OTP(models.Model):
 
     def __str__(self):
         return f"OTP for {self.user.email}"
+    
 
+
+
+
+###############
+class Review(models.Model):
+    repair_request = models.OneToOneField('reg.RepairRequest', on_delete=models.CASCADE, related_name='review')
+    service_center = models.ForeignKey('ServiceCenter', on_delete=models.CASCADE)
+    customer = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)])
+    feedback = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for {self.service_center.name} by {self.customer}"

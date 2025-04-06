@@ -1,0 +1,139 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Feedback Container */
+.feedback-container {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 900px;
+    color: #002244;
+}
+
+/* Left Section */
+.left-section {
+    flex: 1;
+    padding: 50px;
+    text-align: center;
+    background-color: #082d52;
+    border-radius: 10px;
+    color: white;
+}
+
+.left-section h2 {
+    color: white;
+    text-align: center;
+}
+
+.left-section span {
+    font-weight: bold;
+}
+
+.left-section img {
+    width: 70%;
+    margin-top: 10px;
+}
+
+/* Right Section */
+.right-section {
+    flex: 1.5;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.right-section label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+
+.right-section input, 
+.right-section textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.right-section textarea {
+    height: 80px;
+}
+
+/* Star Rating */
+.star-container {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.star-rating {
+    display: flex;
+    gap: 8px;
+    font-size: 30px;
+    color: #ccc;
+    cursor: pointer;
+}
+
+.star-rating .fa-star {
+    transition: color 0.3s;
+}
+
+.star-rating .fa-star.selected {
+    color: #f1c40f;
+}
+
+button, .review-btn, .view-review-btn {
+    background-color: #007f5f;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 15px;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button:hover, .review-btn:hover, .view-review-btn:hover {
+    background-color: #002244;
+}
+
+.view-review-btn {
+    background-color: #4a6baf;
+}
+
+.view-review-btn:hover {
+    background-color: #3a5688;
+}
+
+/* Form elements */
+#id_rating {
+    display: none;
+}
+
+#id_feedback {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    height: 80px;
+}

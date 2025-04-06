@@ -1,122 +1,134 @@
-# import json
-# from channels.generic.websocket import AsyncWebsocketConsumer
-# from django.contrib.auth.models import AnonymousUser
-# from .models import ChatRoom, ChatMessage
-# from asgiref.sync import sync_to_async
-
-# class ChatConsumer(AsyncWebsocketConsumer):
-#     async def connect(self):
-#         self.room_id = self.scope['url_route']['kwargs']['room_id']
-#         self.room_group_name = f'chat_{self.room_id}'
-#         self.user = self.scope['user']
-
-#         if self.user == AnonymousUser():
-#             await self.close()
-#             return
-
-#         # Join room group
-#         await self.channel_layer.group_add(
-#             self.room_group_name,
-#             self.channel_name
-#         )
-
-#         await self.accept()
-
-#     async def disconnect(self, close_code):
-#         # Leave room group
-#         await self.channel_layer.group_discard(
-#             self.room_group_name,
-#             self.channel_name
-#         )
-
-#     async def receive(self, text_data):
-#         text_data_json = json.loads(text_data)
-#         message = text_data_json['message']
-#         sender_type = text_data_json.get('sender_type', 'service')  # 'customer' or 'service'
-
-#         # Save message to database
-#         room = await sync_to_async(ChatRoom.objects.get)(id=self.room_id)
-#         chat_message = await sync_to_async(ChatMessage.objects.create)(
-#             room=room,
-#             sender=self.user,
-#             encrypted_message=b''  # Temporary, will be set in save
-#         )
-#         await sync_to_async(chat_message.save_encrypted_message)(message)
-
-#         # Send message to room group
-#         await self.channel_layer.group_send(
-#             self.room_group_name,
-#             {
-#                 'type': 'chat_message',
-#                 'message_id': chat_message.id,
-#                 'sender_id': self.user.id,
-#                 'sender_name': self.user.get_full_name() or self.user.username,
-#                 'message': message,
-#                 'timestamp': str(chat_message.timestamp),
-#                 'is_read': False
-#             }
-#         )
-
-#     async def chat_message(self, event):
-#         # Send message to WebSocket
-#         await self.send(text_data=json.dumps({
-#             'type': 'chat_message',
-#             'message_id': event['message_id'],
-#             'sender_id': event['sender_id'],
-#             'sender_name': event['sender_name'],
-#             'message': event['message'],
-#             'timestamp': event['timestamp'],
-#             'is_you': event['sender_id'] == self.user.id,
-#             'is_read': event['is_read']
-#         }))
-
-
-
+from channels.generic.websocket import AsyncWebsocketConsumer
+from django.contrib.auth.models import AnonymousUser
+from .models import ChatMessage
 import json
-from channels.generic.websocket import WebsocketConsumer
-from asgiref.sync import async_to_sync
+from asgiref.sync import sync_to_async
+from django.core.exceptions import ObjectDoesNotExist
+from reg.models import RepairRequest
 
-from .models import Message
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.request_id = self.scope['url_route']['kwargs']['request_id']
+        self.room_group_name = f'chat_{self.request_id}'
+        self.user = self.scope["user"]
 
-class ChatConsumer(WebsocketConsumer):
-    def connect(self):
-        grp_name = 'test'
-        self.room_group_name = grp_name
-        print("*"*50)
-        print(self.room_group_name)
-        print("*"*50)
+        # First accept the connection to allow sending error messages
+        await self.accept()
 
-        async_to_sync(self.channel_layer.group_add)(
+        # Verify user is authenticated
+        if isinstance(self.user, AnonymousUser):
+            await self.send(json.dumps({
+                'error': 'Authentication required',
+                'type': 'error'
+            }))
+            await self.close(code=4001)
+            return
+
+        try:
+            # Verify request exists and user has permission
+            self.service_request = await self.get_service_request()
+            if not await self.user_has_permission():
+                await self.send(json.dumps({
+                    'error': 'Permission denied',
+                    'type': 'error'
+                }))
+                await self.close(code=4003)
+                return
+        except ObjectDoesNotExist:
+            await self.send(json.dumps({
+                'error': 'Chat room not found',
+                'type': 'error'
+            }))
+            await self.close(code=4004)
+            return
+
+        # Join room group
+        await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
 
-        self.accept()
+        await self.send_existing_messages()
 
-    def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name,
-            self.channel_name
+    @sync_to_async
+    def get_service_request(self):
+        return RepairRequest.objects.select_related('customer', 'service_center').get(
+            id=self.request_id,
+            status='accepted'
         )
 
-    def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
+    @sync_to_async
+    def user_has_permission(self):
+        return self.user.id in [self.service_request.customer.id, self.service_request.service_center.user.id]
 
-        Message.objects.create(message=message)
-
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
+    async def send_existing_messages(self):
+        messages = await self.get_messages()
+        for message in messages:
+            await self.send_message_to_client({
                 'type': 'chat_message',
-                'message': message
-            }
+                'message': message.message,
+                'sender': message.sender.email,
+                'sender_id': message.sender.id,
+                'is_own': message.sender.id == self.user.id,  # Add this line
+                'timestamp': message.timestamp.isoformat(),
+                'db_id': str(message.id)
+            })
+
+    @sync_to_async
+    def get_messages(self):
+        return list(ChatMessage.objects.filter(
+            request_id=self.request_id
+        ).select_related('sender').order_by('timestamp'))
+
+    async def receive(self, text_data):
+        try:
+            data = json.loads(text_data)
+            if 'message' not in data:
+                raise ValueError("Missing message field")
+                
+            message = await self.save_message(data['message'])
+            await self.broadcast_message({
+                'type': 'chat_message',
+                'message': message.message,
+                'sender': message.sender.email,
+                'sender_id': message.sender.id,
+                'timestamp': message.timestamp.isoformat(),
+                'db_id': str(message.id)
+            })
+        except Exception as e:
+            print(f"Error processing message: {e}")
+            await self.send_error("Failed to process message")
+
+    @sync_to_async
+    def save_message(self, message_content):
+        return ChatMessage.objects.create(
+            request_id=RepairRequest.objects.get(id=self.request_id),
+            sender=self.user,
+            message=message_content
         )
 
-    def chat_message(self, event):
-        message = event['message']
+    async def broadcast_message(self, message_data):
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            message_data
+        )
 
-        self.send(text_data=json.dumps({
-            'type': 'chat',
-            'message': message
-        }))
+    async def send_message_to_client(self, message_data):
+        await self.send(text_data=json.dumps(message_data))
+
+    async def send_error(self, error_message):
+        await self.send_message_to_client({
+            'type': 'error',
+            'error': error_message
+        })
+
+    async def chat_message(self, event):
+        event['is_own'] = event['sender_id'] == self.user.id
+        await self.send_message_to_client(event)
+
+    async def disconnect(self, close_code):
+        if hasattr(self, 'room_group_name'):
+            await self.channel_layer.group_discard(
+                self.room_group_name,
+                self.channel_name
+            )

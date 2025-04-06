@@ -1,6 +1,7 @@
-from django.urls import path
+from django.urls import path,re_path
 from . import views
 from django.contrib.auth.views import LogoutView
+
 
 urlpatterns = [
     path('home/', views.home, name='home'),
@@ -24,4 +25,8 @@ urlpatterns = [
 
     path('showservicecenter/', views.show_service_centers, name='showservicecenter'),
     path('servicedetail/<int:center_id>/',views.service_center_detail, name='servicecenterdetail'),
+
+
+    path('submit-review/<int:repair_id>/', views.submit_review, name='submit_review'),
+    path('view-review/<int:repair_id>/', views.view_review, name='view_review'),
 ]

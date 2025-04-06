@@ -71,10 +71,16 @@
             <label for="purchase_date">Purchase Date</label>
             <input type="date" id="purchase_date" name="purchase_date" required/>
           </div>
-          <div class="form-group">
+          <!--<div class="form-group">
             <label for="warranty_period">Warranty Status (months)</label>
             <input type="number" id="warranty_period" name="warranty_period" placeholder="Enter Warranty Period" required/>
-          </div>
+          </div>-->
+          <div class="form-group">
+            <label for="warranty_end_date">Warranty End Date (Optional)</label>
+            <input type="date" id="warranty_end_date" name="warranty_end_date">
+            <small class="text-muted">Leave blank if no warranty</small>
+        </div>
+          
           <button type="submit">Register</button>
         </form>
       </div>

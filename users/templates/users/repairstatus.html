@@ -73,6 +73,7 @@
                 <th>Request Date</th>
                 <th>Expected Completion</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -95,6 +96,11 @@
                             {% endif %}">
                             {{ repair.status }}
                         </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'chat_user' repair.id %}" class="view-btn">
+                            <i class="fas fa-eye"></i> Chat
+                        </a>
                     </td>
             </tr>
             {% empty %}
@@ -135,7 +141,13 @@
                                 Leave Review
                             </button>
                             {% else %}
-                            <button class="view-review-btn" onclick="redirectToReview('{{ repair.id }}')">
+                            <button class="view-review-btn" onclick="redirectToReview('{{ repair.id }}')" style="background: #cca702;
+                            color: white;
+                            border: none;
+                            padding: 8px 12px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            transition: 0.3s ease-in-out;">
                                 View Review
                             </button>
                             {% endif %}
@@ -151,7 +163,30 @@
         </div>
     </div>
 </div>
-
+<!---{% for repair in completed_repairs %}
+    <tr>
+       
+        <td>
+            {% if repair.id %}  
+                {% if not repair.has_review %}
+                    <a href="{% url 'submit_review' repair.id %}" class="review-btn">
+                        Leave Review
+                    </a>
+                {% else %}
+                    <a href="{% url 'view_review' repair.id %}" class="view-review-btn">
+                        View Review
+                    </a>
+                {% endif %}
+            {% else %}
+                <span class="text-muted">N/A</span>
+            {% endif %}
+        </td>
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="7">No completed repairs found</td>
+    </tr>
+{% endfor %}--->
 <script>
     function toggleDropdown() {
         document.querySelector(".dropdown-content").classList.toggle("show");
@@ -183,13 +218,16 @@
     }
 
     function redirectToReview(repairId) {
-        window.location.href = `feedback.html?repair_id=${repairId}`;
+        /*window.location.href = `feedback.html?repair_id=${repairId}`;*/
+        window.location.href = `/submit-review/${repairId}/`;
     }
 
     // Add event listeners
     document.getElementById("logout-btn").addEventListener("click", showLogoutPopup);
     document.getElementById("logout-option").addEventListener("click", showLogoutPopup);
 </script>
+
+
 
 </body>
 </html>
