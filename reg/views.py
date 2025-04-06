@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.http import JsonResponse
 from .models import *
 from users.models import *
@@ -12,7 +12,10 @@ from django.utils import timezone
 from django.conf import settings
 import re
 from datetime import datetime
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 # Initialize Google NLP client (make sure GOOGLE_APPLICATION_CREDENTIALS is set in settings)
 #os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(settings.BASE_DIR, 'google_credentials.json')
